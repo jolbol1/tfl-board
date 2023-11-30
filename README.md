@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<div id="top"></div>
+
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+<h3 align="center">TFL Board</h3>
+
+  <p align="center">
+    Recreating the departure boards for the London Underground.
+    <br />
+    <a href="https://tfl-board.vercel.app/">View Site</a>
+  </p>
+</div>
+
+<!-- ABOUT THE PROJECT -->
+<div align="center">
+ <img src="example.png" alt="Logo" width="600" height="600">
+</div>
+
+## About The Project
+
+I created this to play around with Redux Query for fetching the data, and learn that for a work project.
+
+I wanted to test RTK Query's ability to generate hooks based on an openApi schema.
+
+Room for future improvements with handling the errors from RTK but a good intro into what was on offer with automated refetching and polling.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### Built With
+
+- [![Next][next.js]][next-url]
+- [![Typescript][typescript-badge]][typescript-url]
+- [![Tailwind][tailwind-badge]][tailwind-url]
+- [RTK Query](https://redux-toolkit.js.org/rtk-query/overview)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- GETTING STARTED -->
 
 ## Getting Started
 
-First, run the development server:
+To get a local copy up and running follow these simple example steps.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Installation
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Clone the repo
+   ```sh
+   git clone https://github.com/jolbol1/jolbol1.github.io.git
+   ```
+2. Install NPM packages
+   ```sh
+   pnpm install
+   ```
+3. Spin it up!
+   ```sh
+   pnpm run dev
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+<!-- LICENSE -->
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
+Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+<!-- CONTACT -->
 
-## Deploy on Vercel
+## Contact
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Your Name - [@JollyShopland](https://twitter.com/JollyShopland) - github@jamesshopland.com
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Project Link: [https://github.com/jolbol1/tfl-board](https://github.com/jolbol1/jolbol1.github.io)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+[license-shield]: https://img.shields.io/github/license/jolbol1/jolbol1.github.io.svg?style=for-the-badge
+[license-url]: https://github.com/jolbol1/jolbol1.github.io/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/james.shopland
+[product-screenshot]: images/screenshot.png
+[next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
+[next-url]: https://nextjs.org/
+[react.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[react-url]: https://reactjs.org/
+[vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
+[vue-url]: https://vuejs.org/
+[angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
+[angular-url]: https://angular.io/
+[svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
+[svelte-url]: https://svelte.dev/
+[laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
+[laravel-url]: https://laravel.com
+[bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
+[bootstrap-url]: https://getbootstrap.com
+[jquery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
+[jquery-url]: https://jquery.com
+[gatsby-badge]: https://img.shields.io/badge/Gatsby-%23663399.svg?style=for-the-badge&logo=gatsby&logoColor=white
+[gatsby]: https://www.gatsbyjs.com/
+[typescript-badge]: https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white
+[typescript-url]: https://www.typescriptlang.org/
+[tailwind-badge]: https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white
+[tailwind-url]: https://tailwindcss.com/
+[svelte-badge]: https://img.shields.io/badge/svelte-%23f1413d.svg?style=for-the-badge&logo=svelte&logoColor=white
+[svelte-url]: https://svelte.dev/
+[vite-badge]: https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white
+[vite-url]: https://vitejs.dev/
+[vercel-badge]: https://img.shields.io/github/deployments/jolbol1/JamesShopland.com/production?label=Vercel&logo=vercel&style=for-the-badge

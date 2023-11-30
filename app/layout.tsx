@@ -45,20 +45,23 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="font-sans relative">
-      <div className="absolute z-[-1] h-screen inset-0 w-screen">
-        <Image
-          src="/background.png"
-          priority
-          fill
-          objectFit="cover"
-          alt="Picture of a london underground platform"
-          style={{ opacity: "20%", zIndex: -1 }}
-        />
-      </div>
       <StoreProvider>
         <body
           className={`${inter.variable} ${tfl.variable} ${inter.className} z-10 bg-black`}
         >
+          <div
+            className="absolute z-[-1] h-full inset-0 w-full"
+            suppressHydrationWarning
+          >
+            <Image
+              src="/background.png"
+              priority
+              fill
+              alt="Picture of a london underground platform"
+              style={{ opacity: "20%", zIndex: -1, objectFit: "cover" }}
+              suppressHydrationWarning
+            />
+          </div>
           {children}
         </body>
       </StoreProvider>

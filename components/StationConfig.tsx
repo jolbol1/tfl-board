@@ -98,9 +98,10 @@ export const StationConfig = ({
         linesData.stopType === "NaptanMetroStation" &&
         linesData?.lineModeGroups
       ) {
-        setAvailableLines(extractLines("tube", linesData?.lineModeGroups));
+        const lines = extractLines("tube", linesData?.lineModeGroups);
+        setAvailableLines(lines);
         if (availableLines) {
-          setSelectedLines(availableLines);
+          setSelectedLines(lines);
         }
       } else if (
         linesData.stopType === "TransportInterchange" &&
@@ -112,9 +113,10 @@ export const StationConfig = ({
             linesData?.lineModeGroups
           ) {
             setStationId(child.stationNaptan!);
-            setAvailableLines(extractLines("tube", linesData?.lineModeGroups));
+            const lines = extractLines("tube", linesData?.lineModeGroups);
+            setAvailableLines(lines);
             if (availableLines) {
-              setSelectedLines(availableLines);
+              setSelectedLines(lines);
             }
           }
         });
