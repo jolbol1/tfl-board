@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import localFont from "next/font/local";
 import StoreProvider from "@/components/StoreProvider";
+import Image from "next/image";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -43,10 +44,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="font-sans">
+    <html lang="en" className="font-sans relative">
+      <div className="absolute z-[-1] h-screen inset-0 w-screen">
+        <Image
+          src="/background.png"
+          priority
+          fill
+          objectFit="cover"
+          alt="Picture of a london underground platform"
+          style={{ opacity: "20%", zIndex: -1 }}
+        />
+      </div>
       <StoreProvider>
         <body
-          className={`${inter.variable} ${tfl.variable} ${inter.className} bg-black/95`}
+          className={`${inter.variable} ${tfl.variable} ${inter.className} z-10 bg-black`}
         >
           {children}
         </body>

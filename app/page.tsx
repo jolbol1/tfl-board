@@ -41,8 +41,8 @@ export default async function Home({ searchParams }: PageProps) {
   const size = sizeParser.parseServerSide(searchParams.size);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center container  font-sans text-gray-200 relative gap-4 text-xs sm:text-base md:text-lg lg:text-2xl">
-      <h1 className="font-bold font-sans ">{name}</h1>
+    <main className="flex min-h-screen flex-col items-center justify-center container  font-sans text-gray-200 relative gap-4 text-xs sm:text-base md:text-lg lg:text-2xl 2xl:text-4xl">
+      <h1 className="font-bold font-sans">{name}</h1>
       <DepartureBoard variant={variant}>
         <TrainTimes
           stationId={stationId}
