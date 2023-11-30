@@ -137,6 +137,8 @@ export const StationConfig = ({
     close();
   };
 
+  console.log("Matches", searchData?.matches);
+
   return (
     <DialogTrigger>
       <Button variant="secondary">Change Station</Button>
@@ -160,7 +162,17 @@ export const StationConfig = ({
                     name="station"
                     isRequired
                     defaultInputValue={searchParams.get("name") ?? ""}
-                    defaultItems={searchData?.matches ?? []}
+                    defaultItems={[...(searchData?.matches ?? [])].sort(
+                      (a, b) => {
+                        if (a.name! < b.name!) {
+                          return -1;
+                        }
+                        if (a.name! > b.name!) {
+                          return 1;
+                        }
+                        return 0;
+                      }
+                    )}
                     onSelectionChange={(value) => {
                       setStationId(value as string);
                       setName(
