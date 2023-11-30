@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import {
   TflApiPresentationEntitiesLineModeGroup,
@@ -8,6 +8,7 @@ import {
 } from "@/store/stopPointApi";
 import { useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery } from "@/store/lineApi";
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 class TrainArrival {
   id: string;
@@ -86,13 +87,28 @@ export const TrainTimes: React.FC<{ variant?: "old" | "new" }> = ({
   const [stationId, setStationId] = useState<string>();
   const [availableLines, setAvailableLines] = useState<string[]>();
 
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams()!;
+  const stationQuery = "victoria";
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
+
+      return params.toString();
+    },
+    [searchParams]
+  );
+
   const {
     data: searchData,
     error: searchError,
     isLoading: searchLoading,
   } = useStopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLinesQuery(
     {
-      query: "victoria",
+      query: stationQuery ?? "victoria",
       modes: ["tube"],
       maxResults: 1,
     }
@@ -104,6 +120,11 @@ export const TrainTimes: React.FC<{ variant?: "old" | "new" }> = ({
       setStationId(searchData.matches[0].id);
     }
   }, [searchData]);
+
+  useEffect(() => {
+    if (stationId)
+      router.push(pathname + "?" + createQueryString("stationId", stationId));
+  }, [stationId]);
 
   const {
     data: linesData,
