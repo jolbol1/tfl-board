@@ -4,7 +4,7 @@ import "./globals.css";
 import localFont from "next/font/local";
 import StoreProvider from "@/components/StoreProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -43,9 +43,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="font-sans">
       <StoreProvider>
-        <body className={`${inter.className} ${tfl.variable} bg-black/95`}>
+        <body
+          className={`${inter.variable} ${tfl.variable} ${inter.className} bg-black/95`}
+        >
           {children}
         </body>
       </StoreProvider>

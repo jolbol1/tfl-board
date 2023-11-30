@@ -9,7 +9,17 @@ import {
 import { useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery } from "@/store/lineApi";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  parseAsArrayOf,
+  parseAsString,
+  parseAsStringEnum,
+  useQueryState,
+} from "next-usequerystate";
 
+enum TravelDirection {
+  inbound = "inbound",
+  outbound = "outbound",
+}
 class TrainArrival {
   id: string;
   timeOfExpectedArrival: number;
@@ -34,16 +44,12 @@ class TrainArrival {
   }
 
   private formatDestinationStationName(stationName: string): string {
-    // Implement the logic to format the station name
-    // Adapted from your Python function 'format_destination_station_name'
     return stationName
-      .replace("Underground Station", "")
+      ?.replace("Underground Station", "")
       .replace("(H&C Line)", "")
       .trim();
   }
 }
-
-type TravelDirection = "inbound" | "outbound" | "all";
 
 const extractLines = (
   mode: string,
@@ -78,93 +84,24 @@ const buildArrivalTime = (arrival: TrainArrival) => {
   return arrivalTime + arrivalText;
 };
 
-export const TrainTimes: React.FC<{ variant?: "old" | "new" }> = ({
+export const TrainTimes: React.FC<{
+  variant?: "old" | "new";
+  stationId: string;
+  direction: "inbound" | "outbound";
+  availableLines: string[];
+}> = ({
   variant = "old",
+  direction = "inbound",
+  availableLines,
+  stationId,
 }) => {
   const [upcomingArrivals, setUpcomingArrivals] = useState<TrainArrival[]>([]);
-  const [direction, setDirection] = useState<TravelDirection>("inbound");
-  const [stationName, setStationName] = useState<string>();
-  const [stationId, setStationId] = useState<string>();
-  const [availableLines, setAvailableLines] = useState<string[]>();
-
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams()!;
-  const stationQuery = "victoria";
-
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams);
-      params.set(name, value);
-
-      return params.toString();
-    },
-    [searchParams]
-  );
-
-  const {
-    data: searchData,
-    error: searchError,
-    isLoading: searchLoading,
-  } = useStopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLinesQuery(
-    {
-      query: stationQuery ?? "victoria",
-      modes: ["tube"],
-      maxResults: 1,
-    }
-  );
-
-  useEffect(() => {
-    if (searchData && searchData.matches && searchData.matches.length > 0) {
-      setStationName(searchData.matches[0].name);
-      setStationId(searchData.matches[0].id);
-    }
-  }, [searchData]);
-
-  useEffect(() => {
-    if (stationId)
-      router.push(pathname + "?" + createQueryString("stationId", stationId));
-  }, [stationId]);
-
-  const {
-    data: linesData,
-    error: linesError,
-    isLoading: linesLoading,
-  } = useStopPointGetByPathIdQueryIncludeCrowdingDataQuery(
-    {
-      id: `${stationId}`,
-    },
-    { skip: stationId == undefined }
-  );
-
-  useEffect(() => {
-    if (linesData) {
-      if (
-        linesData.stopType === "NaptanMetroStation" &&
-        linesData?.lineModeGroups
-      ) {
-        setAvailableLines(extractLines("tube", linesData?.lineModeGroups));
-      } else if (
-        linesData.stopType === "TransportInterchange" &&
-        linesData.children
-      ) {
-        linesData.children.forEach((child) => {
-          if (
-            child.stopType === "NaptanMetroStation" &&
-            linesData?.lineModeGroups
-          ) {
-            setStationId(child.stationNaptan);
-            setAvailableLines(extractLines("tube", linesData?.lineModeGroups));
-          }
-        });
-      }
-    }
-  }, [linesData]);
 
   const {
     data: arrivalData,
     error: arrivalError,
     isLoading: loadingError,
+    refetch: refetchArrivals,
   } = useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery(
     {
       ids: availableLines!?.join(","),
@@ -173,72 +110,84 @@ export const TrainTimes: React.FC<{ variant?: "old" | "new" }> = ({
     },
     {
       skip: stationId == null || !availableLines || availableLines.length == 0,
+      pollingInterval: 90000,
     }
   );
 
   useEffect(() => {
-    if (arrivalData) {
-      arrivalData.sort(
-        (a, b) =>
-          (a.timeToStation ?? Number.MAX_SAFE_INTEGER) -
-          (b.timeToStation ?? Number.MAX_SAFE_INTEGER)
-      );
+    // Define a function to perform the desired action
+    const fetchData = () => {
+      if (arrivalData) {
+        const sorted = [...arrivalData].sort(
+          (a, b) =>
+            (a.timeToStation ?? Number.MAX_SAFE_INTEGER) -
+            (b.timeToStation ?? Number.MAX_SAFE_INTEGER)
+        );
 
-      setUpcomingArrivals(
-        arrivalData.map(
-          (arrival) =>
-            new TrainArrival({
-              id: arrival.id!,
-              destinationName: arrival.destinationName!,
-              timeOfExpectedArrival: Date.now() + arrival.timeToStation! * 1000,
-            })
-        )
-      );
-    }
+        setUpcomingArrivals(
+          sorted.map(
+            (arrival) =>
+              new TrainArrival({
+                id: arrival.id!,
+                destinationName: arrival.destinationName!,
+                timeOfExpectedArrival: new Date(
+                  arrival.expectedArrival!
+                ).getTime(),
+              })
+          )
+        );
+      }
+    };
+
+    // Run the function immediately
+    fetchData();
+
+    // Set up the interval to run the function every 10 seconds
+    const interval = setInterval(fetchData, 10000);
+
+    // Clear the interval when the component unmounts or arrivalData changes
+    return () => clearInterval(interval);
   }, [arrivalData]);
 
-  return (
-    <>
-      {upcomingArrivals?.slice(0, 3).map((arr, index) =>
-        index === 2 &&
-        upcomingArrivals.some((arr) => arr.isTrainApproaching) ? (
-          <TrainApproaching variant={variant} key="trainApproach" />
-        ) : (
-          <BoardRow
-            variant={variant}
-            key={arr.id}
-            className="w-full flex justify-between pt-2 px-1 bg-yellow-400/5"
-          >
-            <span>{`${index + 1} ${arr.destinationName}`}</span>
-            <span>{buildArrivalTime(arr)}</span>
-          </BoardRow>
-        )
-      )}
-      {upcomingArrivals?.slice(0, 3).length < 3 &&
-        new Array(3 - upcomingArrivals.length).fill("").map((_, index) =>
-          index === 0 || index === 2 ? (
-            <BoardRow
-              variant={variant}
-              className="justify-center"
-              key={"infoLine" + index}
-            >
-              {index === 0 ? (
-                "Not in Service"
-              ) : upcomingArrivals.some((arr) => arr.isTrainApproaching) ? (
-                <p className="blink">*** STAND BACK - TRAIN APPROACHING ***</p>
-              ) : null}
-            </BoardRow>
-          ) : (
-            <BoardRow variant={variant} key={"emptyLine" + index} />
-          )
-        )}
-    </>
-  );
+  useEffect(() => {
+    if (
+      upcomingArrivals.length > 0 &&
+      upcomingArrivals.some((arr) => arr.timeToStation < 0)
+    ) {
+      refetchArrivals();
+    }
+  }, [upcomingArrivals]);
+
+  const dataArray = upcomingArrivals
+    .map((arr, index) => (
+      <BoardRow variant={variant} key={arr.id}>
+        <span>{`${index + 1} ${arr.destinationName}`}</span>
+        <span>{buildArrivalTime(arr)}</span>
+      </BoardRow>
+    ))
+    .slice(0, 3)
+    .concat(
+      new Array(Math.max(0, 3 - upcomingArrivals.length))
+        .fill("")
+        .map((s, index) => (
+          <BoardRow variant={variant} key={"emptyIdx" + index} />
+        ))
+    );
+
+  if (upcomingArrivals.some((s) => s.isTrainApproaching)) {
+    dataArray[2] = <TrainApproaching key="trainApproach" variant={variant} />;
+  }
+
+  return <>{dataArray}</>;
 };
 
 export const TrainApproaching: React.FC<{ variant?: "old" | "new" }> = ({
   ...props
-}) => <BoardRow className="justify-center" {...props} />;
+}) => (
+  <BoardRow className="justify-center" {...props}>
+    <p className="blink">*** STAND BACK - TRAIN APPROACHING ***</p>
+  </BoardRow>
+);
 
 export const BoardRow = ({
   className,
