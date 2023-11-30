@@ -1,6 +1,6 @@
 "use client";
 
-import { Form } from "react-aria-components";
+import { Form, Text } from "react-aria-components";
 import { Label } from "./ui/label";
 import { Radio, RadioGroup } from "./ui/radio-group";
 import {
@@ -45,17 +45,20 @@ export const StationConfig = ({
   spDirection,
   spName,
   spLines,
+  spVariant,
 }: {
   spName?: string;
   spStationId?: string;
   spDirection?: string;
   spLines?: string[];
+  spVariant?: string;
 }) => {
   const [query, setQuery] = useState<string>();
   const [direction, setDirection] = useState(spDirection ?? "inbound");
   const [stationId, setStationId] = useState<string | undefined>(spStationId);
   const [availableLines, setAvailableLines] = useState<string[]>(spLines ?? []);
   const [selectedLines, setSelectedLines] = useState<string[]>(spLines ?? []);
+  const [variant, setVariant] = useState(spVariant ?? "new");
 
   const pathname = usePathname();
   const router = useRouter();
@@ -122,13 +125,14 @@ export const StationConfig = ({
     params.set("direction", direction);
     params.set("lines", (selectedLines ?? availableLines).join(","));
     params.set("name", name!);
+    params.set("variant", variant);
     router.push(pathname + "?" + params.toString());
     close();
   };
 
   return (
     <DialogTrigger>
-      <Button>Change Station</Button>
+      <Button variant="secondary">Change Station</Button>
       <DialogOverlay>
         <DialogContent className="w-fit">
           {({ close }) => (
@@ -141,7 +145,7 @@ export const StationConfig = ({
                   }}
                   // @ts-ignore react-aria-components doest expose this but it does work
                   id="stationForm"
-                  className=" text-gray-200 flex flex-col"
+                  className=" text-gray-200 flex flex-col gap-4 pt-6"
                 >
                   <Combobox
                     onInputChange={setQuery}
@@ -159,10 +163,17 @@ export const StationConfig = ({
                       );
                     }}
                   >
+                    <Label>Search Station</Label>
                     <ComboboxInput
                       className="w-full"
                       placeholder="Search Station"
                     />
+                    <Text
+                      slot="description"
+                      className="text-sm text-muted-foreground"
+                    >
+                      Begin typing to search for a station
+                    </Text>
                     <ComboboxPopover>
                       <ComboboxListBox<TflApiPresentationEntitiesSearchMatch>>
                         {(item) => (
@@ -211,6 +222,17 @@ export const StationConfig = ({
                       </>
                     ) : null}
                   </CheckboxGroup>
+                  <RadioGroup
+                    name="theme"
+                    onChange={setVariant}
+                    defaultValue={"new"}
+                    value={variant}
+                    isRequired
+                  >
+                    <Label>Board Style</Label>
+                    <Radio value="old">Old</Radio>
+                    <Radio value="new">New</Radio>
+                  </RadioGroup>
                 </Form>
               </DialogHeader>
               <DialogFooter>

@@ -10,6 +10,7 @@ type PageProps = {
     stationId?: string;
     direction?: string;
     lines?: string[];
+    variant?: string;
   };
 };
 
@@ -21,24 +22,28 @@ const linesParser = parseAsArrayOf(parseAsString).withDefault([
   "district",
   "victoria",
 ]);
+const variantParser = parseAsString.withDefault("new");
 
 export default async function Home({ searchParams }: PageProps) {
   const name = nameParser.parseServerSide(searchParams.name);
   const stationId = stationIdParser.parseServerSide(searchParams.stationId);
   const direction = directionParser.parseServerSide(searchParams.direction);
   const lines = linesParser.parseServerSide(searchParams.lines);
+  const variant = variantParser.parseServerSide(searchParams.variant) as
+    | "old"
+    | "new";
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 font-sans text-gray-200 relative gap-4">
       <h1 className="font-bold font-sans ">{name}</h1>
-      <DepartureBoard variant="old">
+      <DepartureBoard variant={variant}>
         <TrainTimes
           stationId={stationId}
           availableLines={lines}
           direction={direction as "inbound" | "outbound"}
-          variant="old"
+          variant={variant}
         />
-        <Clock variant="old" />
+        <Clock variant={variant} />
       </DepartureBoard>
       <StationConfig
         spStationId={stationId}
