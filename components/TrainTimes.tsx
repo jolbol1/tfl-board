@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 
 import { useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery } from "@/store/lineApi";
 import { cn } from "@/lib/utils";
+import { Label, Input, Button } from "react-aria-components";
+import { PopoverTrigger, Popover } from "./ui/popover";
 
 class TrainArrival {
   id: string;
@@ -10,12 +12,18 @@ class TrainArrival {
   timeToStation: number;
   destinationName: string;
   isTrainApproaching: boolean;
+  lineName?: string;
+  platformName?: string;
+  currentLocation?: string;
 
   constructor(item: {
     id: string;
     timeOfExpectedArrival: number;
     timeToStation?: number;
     destinationName: string;
+    lineName?: string;
+    platformName?: string;
+    currentLocation?: string;
   }) {
     this.id = item.id;
     this.timeOfExpectedArrival = item.timeOfExpectedArrival; // Date.now() returns milliseconds
@@ -25,6 +33,9 @@ class TrainArrival {
       item.destinationName
     );
     this.isTrainApproaching = this.timeToStation < 30;
+    this.lineName = item.lineName;
+    this.platformName = item.platformName;
+    this.currentLocation = item.currentLocation;
   }
 
   private formatDestinationStationName(stationName: string): string {
@@ -108,6 +119,9 @@ export const TrainTimes: React.FC<{
                 timeOfExpectedArrival: new Date(
                   arrival.expectedArrival!
                 ).getTime(),
+                lineName: arrival.lineName,
+                platformName: arrival.platformName,
+                currentLocation: arrival.currentLocation,
               })
           )
         );
@@ -135,10 +149,38 @@ export const TrainTimes: React.FC<{
 
   let dataArray = upcomingArrivals
     .map((arr, index) => (
-      <BoardRow variant={variant} key={arr.id}>
-        <span>{`${index + 1} ${arr.destinationName}`}</span>
-        <span>{buildArrivalTime(arr)}</span>
-      </BoardRow>
+      <PopoverTrigger key={arr.id}>
+        <Button className="hover:underline underline-offset-4 focus:outline-none">
+          <BoardRow variant={variant} key={arr.id}>
+            <span>{`${index + 1} ${arr.destinationName}`}</span>
+            <span>{buildArrivalTime(arr)}</span>
+          </BoardRow>
+        </Button>
+        <Popover className="w-fit" placement="bottom start">
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <h4 className="font-medium leading-none">Details</h4>
+              <p className="text-sm text-muted-foreground">
+                Current location updates every 90s.
+              </p>
+            </div>{" "}
+            <div className="grid gap-2">
+              <div className="grid grid-cols-2 items-center gap-4">
+                <Label htmlFor="width">Platform</Label>
+                {arr.platformName}
+              </div>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <Label htmlFor="maxWidth">Line</Label>
+                {arr.lineName}
+              </div>
+              <div className="grid grid-cols-2 items-center gap-4">
+                <Label htmlFor="height">Current Location</Label>
+                {arr.currentLocation}
+              </div>
+            </div>
+          </div>
+        </Popover>
+      </PopoverTrigger>
     ))
     .concat(
       new Array(Math.max(0, 3 - upcomingArrivals.length))
