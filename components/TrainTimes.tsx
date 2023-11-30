@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   TflApiPresentationEntitiesLineModeGroup,
@@ -7,6 +7,7 @@ import {
   useStopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLinesQuery,
 } from "@/store/stopPointApi";
 import { useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery } from "@/store/lineApi";
+import { cn } from "@/lib/utils";
 
 class TrainArrival {
   id: string;
@@ -76,7 +77,9 @@ const buildArrivalTime = (arrival: TrainArrival) => {
   return arrivalTime + arrivalText;
 };
 
-export const TrainTimes = ({}) => {
+export const TrainTimes: React.FC<{ variant?: "old" | "new" }> = ({
+  variant = "old",
+}) => {
   const [upcomingArrivals, setUpcomingArrivals] = useState<TrainArrival[]>([]);
   const [direction, setDirection] = useState<TravelDirection>("inbound");
   const [stationName, setStationName] = useState<string>();
@@ -178,49 +181,55 @@ export const TrainTimes = ({}) => {
       {upcomingArrivals?.slice(0, 3).map((arr, index) =>
         index === 2 &&
         upcomingArrivals.some((arr) => arr.isTrainApproaching) ? (
-          <TrainApproaching key="trainApproach" />
+          <TrainApproaching variant={variant} key="trainApproach" />
         ) : (
-          <div
+          <BoardRow
+            variant={variant}
             key={arr.id}
             className="w-full flex justify-between pt-2 px-1 bg-yellow-400/5"
           >
             <span>{`${index + 1} ${arr.destinationName}`}</span>
             <span>{buildArrivalTime(arr)}</span>
-          </div>
+          </BoardRow>
         )
       )}
       {upcomingArrivals?.slice(0, 3).length < 3 &&
-        new Array(3 - upcomingArrivals.length).fill("").map((emp, index) =>
-          index === 0 ? (
-            <div
-              className="w-full text-center pt-2 px-1 bg-yellow-400/5"
-              key={index}
+        new Array(3 - upcomingArrivals.length).fill("").map((_, index) =>
+          index === 0 || index === 2 ? (
+            <BoardRow
+              variant={variant}
+              className="justify-center"
+              key={"infoLine" + index}
             >
-              Not in Service
-            </div>
-          ) : index === 2 &&
-            upcomingArrivals.some((arr) => arr.isTrainApproaching) ? (
-            <TrainApproaching key="trainApproach" />
+              {index === 0 ? (
+                "Not in Service"
+              ) : upcomingArrivals.some((arr) => arr.isTrainApproaching) ? (
+                <p className="blink">*** STAND BACK - TRAIN APPROACHING ***</p>
+              ) : null}
+            </BoardRow>
           ) : (
-            <div
-              key={index}
-              className="w-full flex justify-between pt-2 px-1 bg-yellow-400/5"
-            />
+            <BoardRow variant={variant} key={"emptyLine" + index} />
           )
         )}
     </>
   );
 };
 
-export const TrainApproaching = () => (
-  <div className="w-full text-center pt-2 px-1 bg-yellow-400/5">
-    <p className="blink">*** STAND BACK - TRAIN APPROACHING ***</p>
-  </div>
-);
+export const TrainApproaching: React.FC<{ variant?: "old" | "new" }> = ({
+  ...props
+}) => <BoardRow className="justify-center" {...props} />;
 
-export const BoardRow = ({ ...props }) => (
+export const BoardRow = ({
+  className,
+  variant = "old",
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & { variant?: "old" | "new" }) => (
   <div
-    className="w-full flex justify-between pt-2 px-1 bg-yellow-400/5"
+    className={cn(
+      "w-full flex justify-between pt-2 px-1 ",
+      { "bg-yellow-400/5": variant === "old" },
+      className
+    )}
     {...props}
   />
 );

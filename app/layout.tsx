@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <StoreProvider>
-        <body className={`${inter.className} ${tfl.variable} bg-gray-950`}>
+        <body className={`${inter.className} ${tfl.variable} bg-black/95`}>
           {children}
         </body>
       </StoreProvider>
