@@ -161,7 +161,7 @@ export const TrainTimes: React.FC<{
             <div className="space-y-2">
               <h4 className="font-medium leading-none">Details</h4>
               <p className="text-sm text-muted-foreground">
-                Current location updates every 90s.
+                Last location updates every 90s.
               </p>
             </div>{" "}
             <div className="grid gap-2">
@@ -174,7 +174,7 @@ export const TrainTimes: React.FC<{
                 {arr.lineName}
               </div>
               <div className="grid grid-cols-2 items-center gap-4">
-                <Label htmlFor="height">Current Location</Label>
+                <Label htmlFor="height">Last Location</Label>
                 {arr.currentLocation}
               </div>
             </div>
