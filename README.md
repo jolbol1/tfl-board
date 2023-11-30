@@ -14,7 +14,7 @@
 
 <!-- ABOUT THE PROJECT -->
 <div align="center">
- <img src="example.png" alt="Logo" width="600" height="600">
+ <img src="example.png" alt="Logo" width="600" >
 </div>
 
 ## About The Project
