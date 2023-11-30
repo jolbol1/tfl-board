@@ -1,25 +1,9 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import {
-  TflApiPresentationEntitiesLineModeGroup,
-  useStopPointGetByPathIdQueryIncludeCrowdingDataQuery,
-  useStopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLinesQuery,
-} from "@/store/stopPointApi";
 import { useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery } from "@/store/lineApi";
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  parseAsArrayOf,
-  parseAsString,
-  parseAsStringEnum,
-  useQueryState,
-} from "next-usequerystate";
 
-enum TravelDirection {
-  inbound = "inbound",
-  outbound = "outbound",
-}
 class TrainArrival {
   id: string;
   timeOfExpectedArrival: number;
@@ -51,17 +35,6 @@ class TrainArrival {
   }
 }
 
-const extractLines = (
-  mode: string,
-  data: TflApiPresentationEntitiesLineModeGroup[]
-) => {
-  return data
-    .filter((group) => group["modeName"] == mode)
-    .filter((group) => group["lineIdentifier"] != null)
-    .map((group) => group["lineIdentifier"]!)
-    .flat();
-};
-
 const buildArrivalTime = (arrival: TrainArrival) => {
   const timeToStation = arrival.timeToStation;
 
@@ -89,11 +62,13 @@ export const TrainTimes: React.FC<{
   stationId: string;
   direction: "inbound" | "outbound";
   availableLines: string[];
+  size?: number;
 }> = ({
   variant = "old",
   direction = "inbound",
   availableLines,
   stationId,
+  size = 3,
 }) => {
   const [upcomingArrivals, setUpcomingArrivals] = useState<TrainArrival[]>([]);
 
@@ -158,14 +133,13 @@ export const TrainTimes: React.FC<{
     }
   }, [upcomingArrivals]);
 
-  const dataArray = upcomingArrivals
+  let dataArray = upcomingArrivals
     .map((arr, index) => (
       <BoardRow variant={variant} key={arr.id}>
         <span>{`${index + 1} ${arr.destinationName}`}</span>
         <span>{buildArrivalTime(arr)}</span>
       </BoardRow>
     ))
-    .slice(0, 3)
     .concat(
       new Array(Math.max(0, 3 - upcomingArrivals.length))
         .fill("")
@@ -174,8 +148,14 @@ export const TrainTimes: React.FC<{
         ))
     );
 
+  if (size > 0) {
+    dataArray = dataArray.slice(0, size < 3 ? 3 : size);
+  }
+
   if (upcomingArrivals.some((s) => s.isTrainApproaching)) {
-    dataArray[2] = <TrainApproaching key="trainApproach" variant={variant} />;
+    dataArray[dataArray.length - 1] = (
+      <TrainApproaching key="trainApproach" variant={variant} />
+    );
   }
 
   return <>{dataArray}</>;

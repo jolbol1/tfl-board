@@ -1,6 +1,6 @@
 "use client";
 
-import { Form, Text } from "react-aria-components";
+import { Form, Text, NumberField, Group } from "react-aria-components";
 import { Label } from "./ui/label";
 import { Radio, RadioGroup } from "./ui/radio-group";
 import {
@@ -28,6 +28,7 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Input } from "./ui/input";
 
 const extractLines = (
   mode: string,
@@ -46,12 +47,14 @@ export const StationConfig = ({
   spName,
   spLines,
   spVariant,
+  spSize,
 }: {
   spName?: string;
   spStationId?: string;
   spDirection?: string;
   spLines?: string[];
   spVariant?: string;
+  spSize?: number;
 }) => {
   const [query, setQuery] = useState<string>();
   const [direction, setDirection] = useState(spDirection ?? "inbound");
@@ -59,6 +62,7 @@ export const StationConfig = ({
   const [availableLines, setAvailableLines] = useState<string[]>(spLines ?? []);
   const [selectedLines, setSelectedLines] = useState<string[]>(spLines ?? []);
   const [variant, setVariant] = useState(spVariant ?? "new");
+  const [size, setSize] = useState(spSize ?? 3);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -72,7 +76,7 @@ export const StationConfig = ({
     isLoading: searchLoading,
   } = useStopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLinesQuery(
     {
-      query: query ?? "victoria",
+      query: query ?? "a",
       modes: ["tube"],
     }
   );
@@ -126,6 +130,7 @@ export const StationConfig = ({
     params.set("lines", (selectedLines ?? availableLines).join(","));
     params.set("name", name!);
     params.set("variant", variant);
+    params.set("size", size.toString());
     router.push(pathname + "?" + params.toString());
     close();
   };
@@ -134,10 +139,10 @@ export const StationConfig = ({
     <DialogTrigger>
       <Button variant="secondary">Change Station</Button>
       <DialogOverlay>
-        <DialogContent className="w-fit">
+        <DialogContent className="w-full">
           {({ close }) => (
             <>
-              <DialogHeader>
+              <DialogHeader className="text-left">
                 <DialogTitle>Change Station</DialogTitle>
                 <Form
                   onSubmit={(e) => {
@@ -233,6 +238,40 @@ export const StationConfig = ({
                     <Radio value="old">Old</Radio>
                     <Radio value="new">New</Radio>
                   </RadioGroup>
+                  <NumberField
+                    defaultValue={3}
+                    minValue={0}
+                    value={size}
+                    onChange={setSize}
+                  >
+                    <Label>Rows</Label>
+                    <Group className="flex group data-[focus-within]:outline-none data-[focus-visible]:outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-background data-[focus-within]:ring-2 data-[focus-within]:ring-ring data-[focus-within]:ring-offset-0">
+                      <Button
+                        className="border-r-0 "
+                        variant="outline"
+                        size="icon"
+                        slot="decrement"
+                      >
+                        -
+                      </Button>
+                      <Input className="focus-visible:ring-0 focus-visible:ring-offset-0" />
+                      <Button
+                        className="border-l-0 "
+                        variant="outline"
+                        size="icon"
+                        slot="increment"
+                      >
+                        +
+                      </Button>
+                    </Group>
+                    <Text
+                      className="text-sm text-muted-foreground"
+                      slot="description"
+                    >
+                      Set to 0 to display all available data. Minimum displayed
+                      is 3
+                    </Text>
+                  </NumberField>
                 </Form>
               </DialogHeader>
               <DialogFooter>

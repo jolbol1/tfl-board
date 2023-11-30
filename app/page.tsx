@@ -2,7 +2,11 @@ import { Clock } from "@/components/Clock";
 import { StationConfig } from "@/components/StationConfig";
 import { TrainTimes } from "@/components/TrainTimes";
 import { cn } from "@/lib/utils";
-import { parseAsArrayOf, parseAsString } from "next-usequerystate/parsers";
+import {
+  parseAsArrayOf,
+  parseAsInteger,
+  parseAsString,
+} from "next-usequerystate/parsers";
 
 type PageProps = {
   searchParams: {
@@ -11,6 +15,7 @@ type PageProps = {
     direction?: string;
     lines?: string[];
     variant?: string;
+    size?: string;
   };
 };
 
@@ -23,6 +28,7 @@ const linesParser = parseAsArrayOf(parseAsString).withDefault([
   "victoria",
 ]);
 const variantParser = parseAsString.withDefault("new");
+const sizeParser = parseAsInteger.withDefault(3);
 
 export default async function Home({ searchParams }: PageProps) {
   const name = nameParser.parseServerSide(searchParams.name);
@@ -32,6 +38,7 @@ export default async function Home({ searchParams }: PageProps) {
   const variant = variantParser.parseServerSide(searchParams.variant) as
     | "old"
     | "new";
+  const size = sizeParser.parseServerSide(searchParams.size);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center container  font-sans text-gray-200 relative gap-4 text-xs sm:text-base md:text-lg lg:text-2xl">
@@ -42,6 +49,7 @@ export default async function Home({ searchParams }: PageProps) {
           availableLines={lines}
           direction={direction as "inbound" | "outbound"}
           variant={variant}
+          size={size}
         />
         <Clock variant={variant} />
       </DepartureBoard>
