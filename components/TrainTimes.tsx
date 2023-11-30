@@ -185,7 +185,7 @@ export const TrainApproaching: React.FC<{ variant?: "old" | "new" }> = ({
   ...props
 }) => (
   <BoardRow className="justify-center" {...props}>
-    <p className="blink">*** STAND BACK - TRAIN APPROACHING ***</p>
+    <p className="blink text-center">*** STAND BACK - TRAIN APPROACHING ***</p>
   </BoardRow>
 );
 

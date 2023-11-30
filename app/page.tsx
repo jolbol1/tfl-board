@@ -34,7 +34,7 @@ export default async function Home({ searchParams }: PageProps) {
     | "new";
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 font-sans text-gray-200 relative gap-4">
+    <main className="flex min-h-screen flex-col items-center justify-center container  font-sans text-gray-200 relative gap-4 text-xs sm:text-base md:text-lg lg:text-2xl">
       <h1 className="font-bold font-sans ">{name}</h1>
       <DepartureBoard variant={variant}>
         <TrainTimes
@@ -63,7 +63,7 @@ const DepartureBoard = ({
 }) => (
   <div
     className={cn(
-      "grid grid-rows-4 w-4/5 border-[20px] max-w-[1200px] border-black gap-4 font-tfl text-yellow-400",
+      "grid grid-rows-4 w-full md:w-4/5 border-[20px] max-w-[1200px] border-black gap-4 font-tfl text-yellow-400",
       {
         "bg-black": variant === "old",
         "bg-zinc-950": variant === "new",
