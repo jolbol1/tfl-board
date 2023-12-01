@@ -159,7 +159,7 @@ export const StationConfig = ({
                     aria-label="station select"
                     name="station"
                     isRequired
-                    defaultInputValue={searchParams.get("name") ?? ""}
+                    defaultInputValue={searchParams.get("name") ?? "Victoria"}
                     defaultItems={[...(searchData?.matches ?? [])].sort(
                       (a, b) => {
                         if (a.name! < b.name!) {
