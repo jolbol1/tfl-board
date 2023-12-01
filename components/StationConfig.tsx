@@ -137,8 +137,6 @@ export const StationConfig = ({
     close();
   };
 
-  console.log("Matches", searchData?.matches);
-
   return (
     <DialogTrigger>
       <Button variant="secondary">Change Station</Button>
