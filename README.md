@@ -25,6 +25,12 @@ I wanted to test RTK Query's ability to generate hooks based on an openApi schem
 
 Room for future improvements with handling the errors from RTK but a good intro into what was on offer with automated refetching and polling.
 
+Possible future work:
+
+- Add debounce to station search (easy)
+- Utilize RTK Mutations for the incoming data
+- Fix timezone issues (easy)
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Built With

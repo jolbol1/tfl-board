@@ -41,7 +41,7 @@ export default async function Home({ searchParams }: PageProps) {
   const size = sizeParser.parseServerSide(searchParams.size);
 
   return (
-    <main className="flex h-full grow flex-col items-center justify-center py-2 font-sans text-gray-200 relative gap-4 text-xs sm:text-base md:text-lg lg:text-2xl 2xl:text-4xl">
+    <main className="flex grow flex-col items-center justify-center py-2 font-sans text-gray-200 relative gap-4 text-xs sm:text-base md:text-lg lg:text-2xl 2xl:text-4xl">
       <h1
         // @ts-ignore supported in latest chrome
         style={{ textWrap: "balance" }}
