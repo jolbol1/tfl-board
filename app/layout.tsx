@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import localFont from "next/font/local";
@@ -15,6 +15,10 @@ export const metadata: Metadata = {
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
   },
+};
+
+export const viewport: Viewport = {
+  maximumScale: 1,
 };
 
 const tfl = localFont({
@@ -52,7 +56,7 @@ export default function RootLayout({
     <html lang="en" className="font-sans relative">
       <StoreProvider>
         <body
-          className={`${inter.variable} ${tfl.variable} ${inter.className} z-10 bg-black`}
+          className={`${inter.variable} ${tfl.variable} ${inter.className} z-10 bg-black px-2 `}
         >
           <div
             className="absolute z-[-1] h-full inset-0 w-full"
