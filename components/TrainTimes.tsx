@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 import { useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery } from "@/store/lineApi";
 import { cn } from "@/lib/utils";
-import { Label, Input, Button } from "react-aria-components";
+import { Label, Input, Button, Dialog } from "react-aria-components";
 import { PopoverTrigger, Popover } from "./ui/popover";
 
 class TrainArrival {
@@ -150,14 +150,18 @@ export const TrainTimes: React.FC<{
   let dataArray = upcomingArrivals
     .map((arr, index) => (
       <PopoverTrigger key={arr.id}>
-        <Button className="hover:underline underline-offset-4 focus:outline-none">
+        <Button className="hover:underline underline-offset-4 focus:outline-none focus:underline">
           <BoardRow variant={variant} key={arr.id}>
             <span>{`${index + 1} ${arr.destinationName}`}</span>
             <span>{buildArrivalTime(arr)}</span>
           </BoardRow>
         </Button>
-        <Popover className="w-fit" placement="bottom start">
-          <div className="grid gap-4">
+        <Popover
+          isKeyboardDismissDisabled={false}
+          className="w-fit"
+          placement="bottom start"
+        >
+          <Dialog className="grid gap-4 focus:outline-none">
             <div className="space-y-2">
               <h4 className="font-medium leading-none">Details</h4>
               <p className="text-sm text-muted-foreground">
@@ -178,7 +182,7 @@ export const TrainTimes: React.FC<{
                 {arr.currentLocation}
               </div>
             </div>
-          </div>
+          </Dialog>
         </Popover>
       </PopoverTrigger>
     ))
