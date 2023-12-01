@@ -158,7 +158,7 @@ export const TrainTimes: React.FC<{
         </Button>
         <Popover
           isKeyboardDismissDisabled={false}
-          className="w-fit"
+          className="w-fit max-w-[95%]"
           placement="bottom start"
         >
           <Dialog className="grid gap-4 focus:outline-none">
