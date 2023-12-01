@@ -141,7 +141,7 @@ export const StationConfig = ({
     <DialogTrigger>
       <Button variant="secondary">Change Station</Button>
       <DialogOverlay>
-        <DialogContent className="w-full">
+        <DialogContent className="w-full max-h-full overflow-y-auto">
           {({ close }) => (
             <>
               <DialogHeader className="text-left">
