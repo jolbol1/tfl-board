@@ -4,6 +4,8 @@ import "./globals.css";
 import localFont from "next/font/local";
 import StoreProvider from "@/components/StoreProvider";
 import Image from "next/image";
+import { buttonVariants } from "@/components/ui/button-variants";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -53,10 +55,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="font-sans relative">
+    <html lang="en" className="font-sans relative ">
       <StoreProvider>
         <body
-          className={`${inter.variable} ${tfl.variable} ${inter.className} z-10 bg-black px-2 `}
+          className={`${inter.variable} ${tfl.variable} ${inter.className} z-10 bg-black px-2 h-[100dvh] max-h-[100dvh] max-w-[100dvw] overflow-y-auto flex flex-col`}
         >
           <div
             className="absolute z-[-1] h-full inset-0 w-full"
@@ -72,6 +74,12 @@ export default function RootLayout({
             />
           </div>
           {children}
+          <footer className="w-full text-center">
+            Built by{" "}
+            <Link href="https://jamesshopland.com" className="underline">
+              James Shopland
+            </Link>
+          </footer>
         </body>
       </StoreProvider>
     </html>
