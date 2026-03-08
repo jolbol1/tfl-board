@@ -1,44 +1,29 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { Check, Minus } from "lucide-react";
-import {
-  Checkbox,
-  CheckboxGroup,
-  type CheckboxProps,
-} from "react-aria-components";
+import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
 
-import { cnv } from "@/lib/utils";
+import { cn } from "@/lib/utils"
+import { CheckIcon } from "lucide-react"
 
-import { labelVariants } from "./label";
-
-const _CheckboxGroup = CheckboxGroup;
-
-const _Checkbox = ({ className, children, ...props }: CheckboxProps) => (
-  <Checkbox
-    className={(values) =>
-      cnv(
-        values,
-        "group flex items-center gap-x-2  data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 ",
-        labelVariants,
+function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
+  return (
+    <CheckboxPrimitive.Root
+      data-slot="checkbox"
+      className={cn(
+        "peer relative flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input shadow-xs transition-shadow outline-none group-has-disabled/field:opacity-50 after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
         className
-      )
-    }
-    {...props}
-  >
-    {(values) => (
-      <>
-        <div className="h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background group-data-[indeterminate]:bg-primary group-data-[selected]:bg-primary  group-data-[indeterminate]:text-primary-foreground group-data-[selected]:text-primary-foreground group-data-[focus-visible]:outline-none group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-ring group-data-[focus-visible]:ring-offset-2">
-          {values.isIndeterminate ? (
-            <Minus className="h-[0.875rem] w-[0.875rem]" />
-          ) : values.isSelected ? (
-            <Check className="h-4 w-[0.875rem]" />
-          ) : null}
-        </div>
-        {typeof children === "function" ? children(values) : children}
-      </>
-    )}
-  </Checkbox>
-);
+      )}
+      {...props}
+    >
+      <CheckboxPrimitive.Indicator
+        data-slot="checkbox-indicator"
+        className="grid place-content-center text-current transition-none [&>svg]:size-3.5"
+      >
+        <CheckIcon
+        />
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
+  )
+}
 
-export { _Checkbox as Checkbox, _CheckboxGroup as CheckboxGroup };
+export { Checkbox }

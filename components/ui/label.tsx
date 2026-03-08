@@ -1,17 +1,20 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { cva } from "class-variance-authority";
-import { Label, LabelProps } from "react-aria-components";
+import * as React from "react"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-const labelVariants = cva(
-  "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-70"
-);
+function Label({ className, ...props }: React.ComponentProps<"label">) {
+  return (
+    <label
+      data-slot="label"
+      className={cn(
+        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+        className
+      )}
+      {...props}
+    />
+  )
+}
 
-const _Label = ({ className, ...props }: LabelProps) => (
-  <Label className={cn(labelVariants(), className)} {...props} />
-);
-
-export { _Label as Label, labelVariants };
+export { Label }

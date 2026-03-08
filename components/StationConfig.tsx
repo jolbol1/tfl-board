@@ -1,12 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Text, NumberField, Group } from "react-aria-components";
 import { Label } from "./ui/label";
-import { Radio, RadioGroup } from "./ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import {
   fetchStopPoint,
-  fetchStopPointSearch,
   tflQueryKeys,
   TflLineModeGroup,
   TflSearchMatch,
@@ -14,23 +12,29 @@ import {
 import { FormEvent, useMemo, useState } from "react";
 import {
   Combobox,
+  ComboboxContent,
   ComboboxInput,
   ComboboxItem,
-  ComboboxListBox,
-  ComboboxPopover,
+  ComboboxList,
 } from "./ui/combobox";
-import { Checkbox, CheckboxGroup } from "./ui/checkbox";
+import { Checkbox } from "./ui/checkbox";
+import { CheckboxGroup } from "@base-ui/react/checkbox-group";
 import {
+  Dialog,
+  DialogDescription,
   DialogContent,
+  DialogClose,
   DialogFooter,
   DialogHeader,
-  DialogOverlay,
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Input } from "./ui/input";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Input,
+} from "./ui/input";
+import tubeStations from "@/data/tube-stations.json";
 
 const extractLines = (
   mode: string,
@@ -66,22 +70,12 @@ export const StationConfig = ({
   );
   const [variant, setVariant] = useState(spVariant ?? "new");
   const [size, setSize] = useState(spSize ?? 3);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [name, setName] = useState<string | undefined>(spName);
-  const searchTerm = query ?? "a";
-
-  const { data: searchData } = useQuery({
-    queryKey: tflQueryKeys.stopPointSearch(searchTerm, ["tube"]),
-    queryFn: () =>
-      fetchStopPointSearch({
-        query: searchTerm,
-        modes: ["tube"],
-      }),
-  });
 
   const { data: linesData } = useQuery({
     queryKey: tflQueryKeys.stopPoint(stationId ?? ""),
@@ -113,8 +107,49 @@ export const StationConfig = ({
   }, [linesData, spLines]);
 
   const selectedOrAvailableLines = selectedLines ?? availableLines;
+  const selectedStation = useMemo<TflSearchMatch | null>(() => {
+    if (!stationId || !name) {
+      return null;
+    }
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>, close: () => void) => {
+    return { id: stationId, name };
+  }, [name, stationId]);
+  const stationMatches = useMemo(
+    () => {
+      const normalizedQuery = query?.trim().toLowerCase();
+      const matches = normalizedQuery
+        ? tubeStations.filter((station) =>
+            station.name.toLowerCase().includes(normalizedQuery)
+          )
+        : tubeStations;
+
+      return matches.slice(0, 50);
+    },
+    [query]
+  );
+
+  const resetFormState = () => {
+    setQuery(spName);
+    setDirection(spDirection ?? "inbound");
+    setStationId(spStationId);
+    setSelectedLines(spLines ?? null);
+    setVariant(spVariant ?? "new");
+    setSize(spSize ?? 3);
+    setName(spName);
+  };
+
+  const updateSize = (value: string) => {
+    const parsedValue = Number.parseInt(value, 10);
+
+    if (Number.isNaN(parsedValue)) {
+      setSize(0);
+      return;
+    }
+
+    setSize(Math.max(0, parsedValue));
+  };
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!resolvedStationId || !name) {
       return;
@@ -128,164 +163,146 @@ export const StationConfig = ({
     params.set("variant", variant);
     params.set("size", size.toString());
     router.push(pathname + "?" + params.toString());
-    close();
+    setDialogOpen(false);
   };
 
   return (
-    <DialogTrigger>
-      <Button variant="secondary">Change Station</Button>
-      <DialogOverlay>
+    <Dialog
+      open={dialogOpen}
+      onOpenChange={(open) => {
+        if (open) {
+          resetFormState();
+        }
+        setDialogOpen(open);
+      }}
+    >
+      <DialogTrigger render={<Button variant="secondary" />}>
+        Change Station
+      </DialogTrigger>
         <DialogContent className="w-full max-h-full overflow-y-auto">
-          {({ close }) => (
-            <>
-              <DialogHeader className="text-left">
-                <DialogTitle>Change Station</DialogTitle>
-                <form
-                  onSubmit={(e) => {
-                    onSubmit(e, close);
-                  }}
-                  id="stationForm"
-                  className=" text-gray-200 flex flex-col gap-4 pt-6"
-                >
-                  <Combobox
-                    onInputChange={setQuery}
-                    aria-label="station select"
-                    name="station"
-                    isRequired
-                    defaultInputValue={searchParams.get("name") ?? "Victoria"}
-                    defaultItems={[...(searchData?.matches ?? [])].sort(
-                      (a, b) => {
-                        if (a.name! < b.name!) {
-                          return -1;
-                        }
-                        if (a.name! > b.name!) {
-                          return 1;
-                        }
-                        return 0;
-                      }
+          <DialogHeader className="text-left">
+            <DialogTitle>Change Station</DialogTitle>
+            <form
+              onSubmit={onSubmit}
+              id="stationForm"
+              className=" text-gray-200 flex flex-col gap-4 pt-6"
+            >
+              <Combobox<TflSearchMatch>
+                onInputValueChange={(value) => {
+                  setQuery(value || undefined);
+                }}
+                aria-label="station select"
+                name="station"
+                required
+                value={selectedStation}
+                items={stationMatches}
+                itemToStringLabel={(item) => item.name ?? ""}
+                itemToStringValue={(item) => item.id ?? ""}
+                isItemEqualToValue={(item, value) => item.id === value.id}
+                onValueChange={(value) => {
+                  setStationId(value?.id);
+                  setSelectedLines(null);
+                  setName(value?.name);
+                }}
+              >
+                <Label>Search Station</Label>
+                <ComboboxInput
+                  className="w-full"
+                  placeholder="Search Station"
+                />
+                <DialogDescription className="text-sm text-muted-foreground">
+                  Begin typing to search for a station
+                </DialogDescription>
+                <ComboboxContent>
+                  <ComboboxList>
+                    {(item: TflSearchMatch) => (
+                      <ComboboxItem
+                        key={item.id}
+                        className="font-sans"
+                        value={item}
+                      >
+                        {item.name}
+                      </ComboboxItem>
                     )}
-                    onSelectionChange={(value) => {
-                      setStationId(value as string);
-                      setSelectedLines(null);
-                      setName(
-                        searchData?.matches?.find(
-                          (ma) => ma.id === (value as string)
-                        )?.name
-                      );
-                    }}
-                  >
-                    <Label>Search Station</Label>
-                    <ComboboxInput
-                      className="w-full"
-                      placeholder="Search Station"
-                    />
-                    <Text
-                      slot="description"
-                      className="text-sm text-muted-foreground"
-                    >
-                      Begin typing to search for a station
-                    </Text>
-                    <ComboboxPopover>
-                      <ComboboxListBox<TflSearchMatch>>
-                        {(item) => (
-                          <ComboboxItem
-                            key={item.name}
-                            id={item.id}
-                            textValue={item.name}
-                            className="font-sans"
-                            value={item}
-                          >
-                            {item.name}
-                          </ComboboxItem>
-                        )}
-                      </ComboboxListBox>
-                    </ComboboxPopover>
-                  </Combobox>
-                  <RadioGroup
-                    name="direction"
-                    onChange={setDirection}
-                    value={direction}
-                    isRequired
-                  >
-                    <Label>Direction</Label>
-                    <Radio value="inbound">Inbound</Radio>
-                    <Radio value="outbound">Outbound</Radio>
-                  </RadioGroup>
-                  <CheckboxGroup
-                    className="flex flex-col gap-2"
-                    value={selectedOrAvailableLines}
-                    onChange={setSelectedLines}
-                    name="lines"
-                  >
-                    <Label>Lines</Label>
-                    {availableLines && availableLines?.length > 0 ? (
-                      <>
-                        {availableLines?.map((line) => (
-                          <Checkbox
-                            className="capitalize"
-                            key={line}
-                            value={line}
-                          >
-                            {line}
-                          </Checkbox>
-                        ))}
-                      </>
-                    ) : null}
-                  </CheckboxGroup>
-                  <RadioGroup
-                    name="theme"
-                    onChange={setVariant}
-                    value={variant}
-                    isRequired
-                  >
-                    <Label>Board Style</Label>
-                    <Radio value="old">Old</Radio>
-                    <Radio value="new">New</Radio>
-                  </RadioGroup>
-                  <NumberField
-                    minValue={0}
-                    value={size}
-                    onChange={setSize}
-                  >
-                    <Label>Rows</Label>
-                    <Group className="flex group data-[focus-within]:outline-none data-[focus-visible]:outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-background data-[focus-within]:ring-2 data-[focus-within]:ring-ring data-[focus-within]:ring-offset-0">
-                      <Button
-                        className="border-r-0 "
-                        variant="outline"
-                        size="icon"
-                        slot="decrement"
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
+              <RadioGroup
+                name="direction"
+                onValueChange={setDirection}
+                value={direction}
+                required
+              >
+                <Label>Direction</Label>
+                <Label className="font-normal">
+                  <RadioGroupItem value="inbound" />
+                  <span>Inbound</span>
+                </Label>
+                <Label className="font-normal">
+                  <RadioGroupItem value="outbound" />
+                  <span>Outbound</span>
+                </Label>
+              </RadioGroup>
+              <CheckboxGroup
+                className="flex flex-col gap-2"
+                value={selectedOrAvailableLines}
+                onValueChange={setSelectedLines}
+              >
+                <Label>Lines</Label>
+                {availableLines && availableLines?.length > 0
+                  ? availableLines.map((line) => (
+                      <Label
+                        className="font-normal capitalize"
+                        key={line}
                       >
-                        -
-                      </Button>
-                      <Input className="focus-visible:ring-0 focus-visible:ring-offset-0" />
-                      <Button
-                        className="border-l-0 "
-                        variant="outline"
-                        size="icon"
-                        slot="increment"
-                      >
-                        +
-                      </Button>
-                    </Group>
-                    <Text
-                      className="text-sm text-muted-foreground"
-                      slot="description"
-                    >
-                      Set to 0 to display all available data. Minimum displayed
-                      is 3
-                    </Text>
-                  </NumberField>
-                </form>
-              </DialogHeader>
-              <DialogFooter>
-                <Button form="stationForm" type="submit">
-                  Save changes
-                </Button>
-              </DialogFooter>
-            </>
-          )}
+                        <Checkbox name="lines" value={line} />
+                        <span>{line}</span>
+                      </Label>
+                    ))
+                  : null}
+              </CheckboxGroup>
+              <RadioGroup
+                name="theme"
+                onValueChange={setVariant}
+                value={variant}
+                required
+              >
+                <Label>Board Style</Label>
+                <Label className="font-normal">
+                  <RadioGroupItem value="old" />
+                  <span>Old</span>
+                </Label>
+                <Label className="font-normal">
+                  <RadioGroupItem value="new" />
+                  <span>New</span>
+                </Label>
+              </RadioGroup>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="rows">Rows</Label>
+                <Input
+                  id="rows"
+                  type="number"
+                  min={0}
+                  value={size}
+                  onChange={(event) => {
+                    updateSize(event.target.value);
+                  }}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Set to 0 to display all available data. Minimum displayed is 3
+                </p>
+              </div>
+            </form>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>
+              Cancel
+            </DialogClose>
+            <Button form="stationForm" type="submit">
+              Save changes
+            </Button>
+          </DialogFooter>
         </DialogContent>
-      </DialogOverlay>
-    </DialogTrigger>
+    </Dialog>
   );
 };

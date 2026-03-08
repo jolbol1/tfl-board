@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 type ClassFunction<T> = (values: T) => string;
 type ClassValues<T> = (ClassValue | ClassFunction<T>)[];
 
-// Helper function to allow functions to be input to be calculated with react-aria-components
+// Helper function to resolve className callbacks against render state
 export function cnv<T>(values: T, ...inputs: ClassValues<T>) {
   const processedInputs = inputs.map((input) => {
     if (typeof input === "function") {

@@ -1,75 +1,38 @@
-"use client";
+"use client"
 
-import { Circle } from "lucide-react";
-import {
-  Radio,
-  RadioGroup,
-  RadioGroupProps,
-  RadioProps,
-} from "react-aria-components";
+import { Radio as RadioPrimitive } from "@base-ui/react/radio"
+import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group"
 
-import { cnv } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-import { labelVariants } from "./label";
-
-const _RadioGroup = ({
-  className,
-  orientation = "vertical",
-  ...props
-}: RadioGroupProps) => {
+function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
   return (
-    <RadioGroup
-      className={(values) =>
-        cnv(
-          values,
-          {
-            "grid gap-2": orientation === "vertical",
-            "flex items-center gap-2": orientation === "horizontal",
-          },
-          className
-        )
-      }
+    <RadioGroupPrimitive
+      data-slot="radio-group"
+      className={cn("grid w-full gap-3", className)}
       {...props}
     />
-  );
-};
-
-export interface _RadioProps extends RadioProps {
-  showRadio?: boolean;
+  )
 }
 
-const _Radio = ({
-  className,
-  children,
-  showRadio = true,
-  ...props
-}: _RadioProps) => {
+function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
   return (
-    <Radio
-      className={(values) =>
-        cnv(
-          values,
-          "group flex items-center data-[focused]:outline-none gap-x-2",
-          labelVariants,
-          className
-        )
-      }
+    <RadioPrimitive.Root
+      data-slot="radio-group-item"
+      className={cn(
+        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 rounded-full border border-input outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
+        className
+      )}
       {...props}
     >
-      {(values) => (
-        <>
-          {showRadio && (
-            <span className="flex aspect-square h-4 w-4 items-center justify-center rounded-full border border-primary ring-offset-background group-data-[disabled]:opacity-50 group-data-[focus-visible]:ring-2 group-data-[focus-visible]:ring-ring group-data-[focus-visible]:ring-offset-2">
-              {values.isSelected && (
-                <Circle className="h-2.5 w-2.5 fill-current text-current" />
-              )}
-            </span>
-          )}
-          {typeof children === "function" ? children(values) : children}
-        </>
-      )}
-    </Radio>
-  );
-};
+      <RadioPrimitive.Indicator
+        data-slot="radio-group-indicator"
+        className="flex size-4 items-center justify-center"
+      >
+        <span className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground" />
+      </RadioPrimitive.Indicator>
+    </RadioPrimitive.Root>
+  )
+}
 
-export { _RadioGroup as RadioGroup, _Radio as Radio };
+export { RadioGroup, RadioGroupItem }
