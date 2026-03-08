@@ -28,7 +28,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.id}`,
-        params: { includeCrowdingData: queryArg.includeCrowdingData },
+        params: {
+          includeCrowdingData: queryArg.includeCrowdingData,
+        },
       }),
     }),
     stopPointGetByPathIdsQueryIncludeCrowdingData: build.query<
@@ -37,7 +39,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.ids}`,
-        params: { includeCrowdingData: queryArg.includeCrowdingData },
+        params: {
+          includeCrowdingData: queryArg.includeCrowdingData,
+        },
       }),
     }),
     stopPointGetByPathIdQueryPlaceTypes: build.query<
@@ -46,7 +50,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.id}/placeTypes`,
-        params: { placeTypes: queryArg.placeTypes },
+        params: {
+          placeTypes: queryArg.placeTypes,
+        },
       }),
     }),
     stopPointCrowdingByPathIdPathLineQueryDirection: build.query<
@@ -55,7 +61,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.id}/Crowding/${queryArg.line}`,
-        params: { direction: queryArg.direction },
+        params: {
+          direction: queryArg.direction,
+        },
       }),
     }),
     stopPointGetByTypeByPathTypes: build.query<
@@ -97,7 +105,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.id}/ArrivalDepartures`,
-        params: { lineIds: queryArg.lineIds },
+        params: {
+          lineIds: queryArg.lineIds,
+        },
       }),
     }),
     stopPointReachableFromByPathIdPathLineIdQueryServiceTypes: build.query<
@@ -106,7 +116,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.id}/CanReachOnLine/${queryArg.lineId}`,
-        params: { serviceTypes: queryArg.serviceTypes },
+        params: {
+          serviceTypes: queryArg.serviceTypes,
+        },
       }),
     }),
     stopPointRouteByPathIdQueryServiceTypes: build.query<
@@ -115,7 +127,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.id}/Route`,
-        params: { serviceTypes: queryArg.serviceTypes },
+        params: {
+          serviceTypes: queryArg.serviceTypes,
+        },
       }),
     }),
     stopPointDisruptionByModeByPathModesQueryIncludeRouteBlockedStops:
@@ -150,7 +164,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.id}/DirectionTo/${queryArg.toStopPointId}`,
-        params: { lineId: queryArg.lineId },
+        params: {
+          lineId: queryArg.lineId,
+        },
       }),
     }),
     stopPointGetByGeoPointByQueryLatQueryLonQueryStopTypesQueryRadiusQueryUseSt:
@@ -178,7 +194,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/Mode/${queryArg.modes}`,
-        params: { page: queryArg.page },
+        params: {
+          page: queryArg.page,
+        },
       }),
     }),
     stopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLines:
@@ -224,7 +242,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/Sms/${queryArg.id}`,
-        params: { output: queryArg.output },
+        params: {
+          output: queryArg.output,
+        },
       }),
     }),
     stopPointGetTaxiRanksByIdsByPathStopPointId: build.query<
@@ -476,20 +496,32 @@ export type TflApiPresentationEntitiesMode = {
   modeName?: string;
 };
 export type TflApiPresentationEntitiesPassengerFlow = {
+  /** Time in 24hr format with 15 minute intervals e.g. 0500-0515, 0515-0530 etc. */
   timeSlice?: string;
+  /** Count of passenger flow towards a platform */
   value?: number;
 };
 export type TflApiPresentationEntitiesTrainLoading = {
+  /** The Line Name e.g. "Victoria" */
   line?: string;
+  /** Direction of the Line e.g. NB, SB, WB etc. */
   lineDirection?: string;
+  /** Direction displayed on the platform e.g. NB, SB, WB etc. */
   platformDirection?: string;
+  /** Direction in regards to Journey Planner i.e. inbound or outbound */
   direction?: string;
+  /** Naptan of the adjacent station */
   naptanTo?: string;
+  /** Time in 24hr format with 15 minute intervals e.g. 0500-0515, 0515-0530 etc. */
   timeSlice?: string;
+  /** Scale between 1-6,
+                 1 = Very quiet, 2 = Quiet, 3 = Fairly busy, 4 = Busy, 5 = Very busy, 6 = Exceptionally busy */
   value?: number;
 };
 export type TflApiPresentationEntitiesCrowding = {
+  /** Busiest times at a station (static information) */
   passengerFlows?: TflApiPresentationEntitiesPassengerFlow[];
+  /** Train Loading on a scale 1-6, 1 being "Very quiet" and 6 being "Exceptionally busy" (static information) */
   trainLoadings?: TflApiPresentationEntitiesTrainLoading[];
 };
 export type TflApiPresentationEntitiesIdentifier = {
@@ -536,7 +568,9 @@ export type TflApiPresentationEntitiesAdditionalProperties = {
 export type TflApiPresentationEntitiesStopPoint = {
   naptanId?: string;
   platformName?: string;
+  /** The indicator of the stop point e.g. "Stop K" */
   indicator?: string;
+  /** The stop letter, if it could be cleansed from the Indicator e.g. "K" */
   stopLetter?: string;
   modes?: string[];
   icsCode?: string;
@@ -551,27 +585,45 @@ export type TflApiPresentationEntitiesStopPoint = {
   fullName?: string;
   naptanMode?: string;
   status?: boolean;
+  /** A unique identifier. */
   id?: string;
+  /** The unique location of this resource. */
   url?: string;
+  /** A human readable name. */
   commonName?: string;
+  /** The distance of the place from its search point, if this is the result
+                of a geographical search, otherwise zero. */
   distance?: number;
+  /** The type of Place. See /Place/Meta/placeTypes for possible values. */
   placeType?: string;
+  /** A bag of additional key/value pairs with extra information about this place. */
   additionalProperties?: TflApiPresentationEntitiesAdditionalProperties[];
   children?: TflApiPresentationEntitiesStopPoint[];
   childrenUrls?: string[];
+  /** WGS84 latitude of the location. */
   lat?: number;
+  /** WGS84 longitude of the location. */
   lon?: number;
 };
 export type TflApiPresentationEntitiesPlace = {
+  /** A unique identifier. */
   id?: string;
+  /** The unique location of this resource. */
   url?: string;
+  /** A human readable name. */
   commonName?: string;
+  /** The distance of the place from its search point, if this is the result
+                of a geographical search, otherwise zero. */
   distance?: number;
+  /** The type of Place. See /Place/Meta/placeTypes for possible values. */
   placeType?: string;
+  /** A bag of additional key/value pairs with extra information about this place. */
   additionalProperties?: TflApiPresentationEntitiesAdditionalProperties[];
   children?: TflApiPresentationEntitiesPlace[];
   childrenUrls?: string[];
+  /** WGS84 latitude of the location. */
   lat?: number;
+  /** WGS84 longitude of the location. */
   lon?: number;
 };
 export type TflApiPresentationEntitiesLineServiceTypeInfo = {
@@ -595,40 +647,72 @@ export type TflApiPresentationEntitiesPredictionTiming = {
   received?: string;
 };
 export type TflApiPresentationEntitiesPrediction = {
+  /** The identitier for the prediction */
   id?: string;
+  /** The type of the operation (1: is new or has been updated, 2: should be deleted from any client cache) */
   operationType?: number;
+  /** The actual vehicle in transit (for train modes, the leading car of the rolling set) */
   vehicleId?: string;
+  /** Identifier for the prediction */
   naptanId?: string;
+  /** Station name */
   stationName?: string;
+  /** Unique identifier for the Line */
   lineId?: string;
+  /** Line Name */
   lineName?: string;
+  /** Platform name (for bus, this is the stop letter) */
   platformName?: string;
+  /** Direction (unified to inbound/outbound) */
   direction?: string;
+  /** Bearing (between 0 to 359) */
   bearing?: string;
+  /** Naptan Identifier for the prediction's destination */
   destinationNaptanId?: string;
+  /** Name of the destination */
   destinationName?: string;
+  /** Timestamp for when the prediction was inserted/modified (source column drives what objects are broadcast on each iteration) */
   timestamp?: string;
+  /** Prediction of the Time to station in seconds */
   timeToStation?: number;
+  /** The current location of the vehicle. */
   currentLocation?: string;
+  /** Routing information or other descriptive text about the path of the vehicle towards the destination */
   towards?: string;
+  /** The expected arrival time of the vehicle at the stop/station */
   expectedArrival?: string;
+  /** The expiry time for the prediction */
   timeToLive?: string;
+  /** The mode name of the station/line the prediction relates to */
   modeName?: string;
   timing?: TflApiPresentationEntitiesPredictionTiming;
 };
 export type TflApiPresentationEntitiesArrivalDeparture = {
+  /** Platform name (for bus, this is the stop letter) */
   platformName?: string;
+  /** Naptan Identifier for the prediction's destination */
   destinationNaptanId?: string;
+  /** Name of the destination */
   destinationName?: string;
+  /** Identifier for the prediction */
   naptanId?: string;
+  /** Station name */
   stationName?: string;
+  /** Estimated time of arrival */
   estimatedTimeOfArrival?: string;
+  /** Estimated time of arrival */
   scheduledTimeOfArrival?: string;
+  /** Estimated time of arrival */
   estimatedTimeOfDeparture?: string;
+  /** Estimated time of arrival */
   scheduledTimeOfDeparture?: string;
+  /** Estimated time of arrival */
   minutesAndSecondsToArrival?: string;
+  /** Estimated time of arrival */
   minutesAndSecondsToDeparture?: string;
+  /** Reason for cancellation or delay */
   cause?: string;
+  /** Status of departure */
   departureStatus?: "OnTime" | "Delayed" | "Cancelled" | "NotStoppingAtStation";
   timing?: TflApiPresentationEntitiesPredictionTiming;
 };
@@ -659,10 +743,15 @@ export type TflApiPresentationEntitiesDisruptedPoint = {
   additionalInformation?: string;
 };
 export type TflApiPresentationEntitiesStopPointsResponse = {
+  /** The centre latitude/longitude of this list of StopPoints */
   centrePoint?: number[];
+  /** Collection of stop points */
   stopPoints?: TflApiPresentationEntitiesStopPoint[];
+  /** The maximum size of the page in this response i.e. the maximum number of StopPoints */
   pageSize?: number;
+  /** The total number of StopPoints available across all pages */
   total?: number;
+  /** The index of this page */
   page?: number;
 };
 export type TflApiPresentationEntitiesSearchMatch = {
