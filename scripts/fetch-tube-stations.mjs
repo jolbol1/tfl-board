@@ -1,7 +1,10 @@
-import { writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const SOURCE_URL = "https://api.tfl.gov.uk/StopPoint/Mode/tube";
 const OUTPUT_PATH = new URL("../data/tube-stations.json", import.meta.url);
+const OUTPUT_FILE_PATH = fileURLToPath(OUTPUT_PATH);
 
 function normalizeStationName(name) {
   return name.trim();
@@ -42,9 +45,10 @@ async function main() {
   const payload = await response.json();
   const stations = toStationEntries(payload.stopPoints ?? []);
 
-  await writeFile(OUTPUT_PATH, `${JSON.stringify(stations, null, 2)}\n`, "utf8");
+  await mkdir(dirname(OUTPUT_FILE_PATH), { recursive: true });
+  await writeFile(OUTPUT_FILE_PATH, `${JSON.stringify(stations, null, 2)}\n`, "utf8");
 
-  console.log(`Wrote ${stations.length} tube stations to ${OUTPUT_PATH.pathname}`);
+  console.log(`Wrote ${stations.length} tube stations to ${OUTPUT_FILE_PATH}`);
 }
 
 main().catch((error) => {
