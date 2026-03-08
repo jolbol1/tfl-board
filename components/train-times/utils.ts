@@ -8,7 +8,6 @@ const MIN_REFETCH_INTERVAL_MS = 1_000;
 export const formatDestinationStationName = (stationName: string) =>
   stationName
     .replace("Underground Station", "")
-    .replace("(H&C Line)", "")
     .trim();
 
 export const getExpectedArrivalTime = (arrival: TflArrival) => {
