@@ -1,8 +1,6 @@
 "use client";
 
-import { Label, Button, Dialog } from "react-aria-components";
-
-import { PopoverTrigger, Popover } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { ArrivalCountdown } from "./ArrivalCountdown";
 import { BoardRow } from "./BoardRow";
@@ -17,21 +15,21 @@ export const ArrivalRow = ({
   index: number;
   variant: BoardVariant;
 }) => (
-  <PopoverTrigger key={arrival.id}>
-    <Button className="hover:underline underline-offset-4 focus:outline-none focus:underline">
+  <Popover key={arrival.id}>
+    <PopoverTrigger className="hover:underline underline-offset-4 focus:outline-none focus:underline">
       <BoardRow variant={variant}>
         <span>{`${index + 1} ${arrival.destinationName}`}</span>
         <ArrivalCountdown
           timeOfExpectedArrival={arrival.timeOfExpectedArrival}
         />
       </BoardRow>
-    </Button>
-    <Popover
-      isKeyboardDismissDisabled={false}
+    </PopoverTrigger>
+    <PopoverContent
       className="w-fit max-w-[95%]"
-      placement="bottom start"
+      side="bottom"
+      align="start"
     >
-      <Dialog className="grid gap-4 focus:outline-none">
+      <div className="grid gap-4 focus:outline-none">
         <div className="space-y-2">
           <h4 className="font-medium leading-none">Details</h4>
           <p className="text-sm text-muted-foreground">
@@ -40,19 +38,19 @@ export const ArrivalRow = ({
         </div>{" "}
         <div className="grid gap-2">
           <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="width">Platform</Label>
+            <span className="font-medium">Platform</span>
             {arrival.platformName}
           </div>
           <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="maxWidth">Line</Label>
+            <span className="font-medium">Line</span>
             {arrival.lineName}
           </div>
           <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="height">Last Location</Label>
+            <span className="font-medium">Last Location</span>
             {arrival.currentLocation}
           </div>
         </div>
-      </Dialog>
-    </Popover>
-  </PopoverTrigger>
+      </div>
+    </PopoverContent>
+  </Popover>
 );

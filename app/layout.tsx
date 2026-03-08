@@ -53,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="font-sans">
+    <html lang="en" className="font-sans dark">
       <body
         className={`${inter.variable} ${tfl.variable} ${inter.className} relative z-10 flex h-[100dvh] max-h-[100dvh] max-w-[100dvw] flex-col overflow-y-auto bg-black px-2`}
       >

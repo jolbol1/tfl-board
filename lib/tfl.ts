@@ -17,10 +17,6 @@ export type TflSearchMatch = {
   lon?: number;
 };
 
-export type TflSearchResponse = {
-  matches?: TflSearchMatch[];
-};
-
 export type TflLineModeGroup = {
   modeName?: string;
   lineIdentifier?: string[];
@@ -64,8 +60,6 @@ async function fetchTflJson<T>({
 export const tflQueryKeys = {
   arrivals: (ids: string, stopPointId: string, direction: string) =>
     ["arrivals", ids, stopPointId, direction] as const,
-  stopPointSearch: (query: string, modes: string[]) =>
-    ["stopPointSearch", query, modes.join(",")] as const,
   stopPoint: (stationId: string) => ["stopPoint", stationId] as const,
 };
 
@@ -83,25 +77,6 @@ export async function fetchArrivals({
 
   return fetchTflJson<TflArrival[]>({
     path: `Line/${ids}/Arrivals/${stopPointId}`,
-    searchParams,
-  });
-}
-
-export async function fetchStopPointSearch({
-  query,
-  modes,
-}: {
-  query: string;
-  modes: string[];
-}) {
-  const searchParams = new URLSearchParams();
-
-  for (const mode of modes) {
-    searchParams.append("modes", mode);
-  }
-
-  return fetchTflJson<TflSearchResponse>({
-    path: `StopPoint/Search/${encodeURIComponent(query)}`,
     searchParams,
   });
 }
