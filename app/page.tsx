@@ -3,20 +3,14 @@ import { StationConfig } from "@/components/StationConfig";
 import { TrainTimes } from "@/components/TrainTimes";
 import { cn } from "@/lib/utils";
 import {
+  createLoader,
   parseAsArrayOf,
   parseAsInteger,
   parseAsString,
-} from "next-usequerystate/parsers";
+} from "nuqs/server";
 
 type PageProps = {
-  searchParams: {
-    name?: string;
-    stationId?: string;
-    direction?: string;
-    lines?: string[];
-    variant?: string;
-    size?: string;
-  };
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 const nameParser = parseAsString.withDefault("Victoria");
@@ -29,41 +23,48 @@ const linesParser = parseAsArrayOf(parseAsString).withDefault([
 ]);
 const variantParser = parseAsString.withDefault("new");
 const sizeParser = parseAsInteger.withDefault(3);
+const loadSearchParams = createLoader({
+  name: nameParser,
+  stationId: stationIdParser,
+  direction: directionParser,
+  lines: linesParser,
+  variant: variantParser,
+  size: sizeParser,
+});
 
 export default async function Home({ searchParams }: PageProps) {
-  const name = nameParser.parseServerSide(searchParams.name);
-  const stationId = stationIdParser.parseServerSide(searchParams.stationId);
-  const direction = directionParser.parseServerSide(searchParams.direction);
-  const lines = linesParser.parseServerSide(searchParams.lines);
-  const variant = variantParser.parseServerSide(searchParams.variant) as
+  const { name, stationId, direction, lines, variant, size } =
+    await loadSearchParams(searchParams);
+
+  const boardVariant = variant as
     | "old"
     | "new";
-  const size = sizeParser.parseServerSide(searchParams.size);
 
   return (
     <main className="flex grow flex-col items-center justify-center py-2 font-sans text-gray-200 relative gap-4 text-xs sm:text-base md:text-lg lg:text-2xl 2xl:text-4xl">
       <h1
-        // @ts-ignore supported in latest chrome
-        style={{ textWrap: "balance" }}
+        style={{ textWrap: "balance" as const }}
         className="font-bold font-sans text-center text-xl sm:text-2xl"
       >
         {name}
       </h1>
-      <DepartureBoard variant={variant}>
+      <DepartureBoard variant={boardVariant}>
         <TrainTimes
           stationId={stationId}
           availableLines={lines}
           direction={direction as "inbound" | "outbound"}
-          variant={variant}
+          variant={boardVariant}
           size={size}
         />
-        <Clock variant={variant} />
+        <Clock variant={boardVariant} />
       </DepartureBoard>
       <StationConfig
         spStationId={stationId}
         spName={name}
         spDirection={direction}
         spLines={lines}
+        spVariant={boardVariant}
+        spSize={size}
       />
     </main>
   );

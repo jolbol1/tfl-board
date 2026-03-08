@@ -1,6 +1,5 @@
-import type { ConfigFile } from "@rtk-query/codegen-openapi";
-
-const config: ConfigFile = {
+/** @type {import("@rtk-query/codegen-openapi").ConfigFile} */
+const config = {
   schemaFile: "./schemas/Line.json",
   apiFile: "./store/emptyLineApi.ts",
   apiImport: "emptyLineApi",
@@ -9,4 +8,4 @@ const config: ConfigFile = {
   hooks: true,
 };
 
-export default config;
+module.exports = config;

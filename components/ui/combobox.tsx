@@ -119,10 +119,7 @@ const ComboboxPopover = ({ className, ...props }: PopoverProps) => (
   />
 );
 
-const ComboboxListBox = <T extends object>({
-  className,
-  ...props
-}: ListBoxProps<T>) => (
+const ComboboxListBox = <T extends object>(props: ListBoxProps<T>) => (
   <ListBox className={(values) => cnv(values, "p-1")} {...props} />
 );
 

@@ -1,30 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
 import localFont from "next/font/local";
+import "./globals.css";
 import StoreProvider from "@/components/StoreProvider";
 import Image from "next/image";
-import { buttonVariants } from "@/components/ui/button-variants";
 import Link from "next/link";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-
-export const metadata: Metadata = {
-  title: "TFL Boards",
-  description: "The TFL Departure Boards online",
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
-  },
-};
-
-export const viewport: Viewport = {
-  maximumScale: 1,
-};
-
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter-family" });
 const tfl = localFont({
-  variable: "--font-tfl",
+  variable: "--font-board-family",
   src: [
     {
       path: "../assets/fonts/LondonUndergroundRegular.ttf",
@@ -49,28 +33,40 @@ const tfl = localFont({
   ],
 });
 
+export const metadata: Metadata = {
+  title: "TFL Boards",
+  description: "The TFL Departure Boards online",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  maximumScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="font-sans relative ">
-      <StoreProvider>
-        <body
-          className={`${inter.variable} ${tfl.variable} ${inter.className} z-10 bg-black px-2 h-[100dvh] max-h-[100dvh] max-w-[100dvw] overflow-y-auto flex flex-col`}
-        >
+    <html lang="en" className="font-sans">
+      <body
+        className={`${inter.variable} ${tfl.variable} ${inter.className} relative z-10 flex h-[100dvh] max-h-[100dvh] max-w-[100dvw] flex-col overflow-y-auto bg-black px-2`}
+      >
+        <StoreProvider>
           <div
-            className="absolute z-[-1] h-full inset-0 w-full"
-            suppressHydrationWarning
+            className="absolute inset-0 z-[-1] h-full w-full"
           >
             <Image
               src="/background.png"
               priority
               fill
               alt="Picture of a london underground platform"
-              style={{ opacity: "20%", zIndex: -1, objectFit: "cover" }}
-              suppressHydrationWarning
+              style={{ opacity: 0.2, zIndex: -1, objectFit: "cover" }}
             />
           </div>
           {children}
@@ -80,8 +76,8 @@ export default function RootLayout({
               James Shopland
             </Link>
           </footer>
-        </body>
-      </StoreProvider>
+        </StoreProvider>
+      </body>
     </html>
   );
 }

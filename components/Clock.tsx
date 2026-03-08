@@ -15,11 +15,9 @@ export const Clock = ({
   variant = "old",
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { variant: "old" | "new" }) => {
-  const [time, setTime] = useState("00:00:00");
+  const [time, setTime] = useState(getTime);
 
   useEffect(() => {
-    setTime(getTime());
-
     const interval = setInterval(() => {
       setTime(getTime());
     }, 1000);

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { Label, LabelProps } from "react-aria-components";
 
 import { cn } from "@/lib/utils";

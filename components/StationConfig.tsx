@@ -1,6 +1,6 @@
 "use client";
 
-import { Form, Text, NumberField, Group } from "react-aria-components";
+import { Text, NumberField, Group } from "react-aria-components";
 import { Label } from "./ui/label";
 import { Radio, RadioGroup } from "./ui/radio-group";
 import {
@@ -9,7 +9,7 @@ import {
   useStopPointGetByPathIdQueryIncludeCrowdingDataQuery,
   useStopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLinesQuery,
 } from "@/store/stopPointApi";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import {
   Combobox,
   ComboboxInput,
@@ -59,21 +59,20 @@ export const StationConfig = ({
   const [query, setQuery] = useState<string>();
   const [direction, setDirection] = useState(spDirection ?? "inbound");
   const [stationId, setStationId] = useState<string | undefined>(spStationId);
-  const [availableLines, setAvailableLines] = useState<string[]>(spLines ?? []);
-  const [selectedLines, setSelectedLines] = useState<string[]>(spLines ?? []);
+  const [selectedLines, setSelectedLines] = useState<string[] | null>(
+    spLines ?? null
+  );
   const [variant, setVariant] = useState(spVariant ?? "new");
   const [size, setSize] = useState(spSize ?? 3);
 
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams()!;
+  const searchParams = useSearchParams();
 
   const [name, setName] = useState<string | undefined>(spName);
 
   const {
     data: searchData,
-    error: searchError,
-    isLoading: searchLoading,
   } = useStopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLinesQuery(
     {
       query: query ?? "a",
@@ -83,8 +82,6 @@ export const StationConfig = ({
 
   const {
     data: linesData,
-    error: linesError,
-    isLoading: linesLoading,
   } = useStopPointGetByPathIdQueryIncludeCrowdingDataQuery(
     {
       id: `${stationId}`,
@@ -92,45 +89,39 @@ export const StationConfig = ({
     { skip: stationId == undefined }
   );
 
-  useEffect(() => {
-    if (linesData) {
-      if (
-        linesData.stopType === "NaptanMetroStation" &&
-        linesData?.lineModeGroups
-      ) {
-        const lines = extractLines("tube", linesData?.lineModeGroups);
-        setAvailableLines(lines);
-        if (availableLines) {
-          setSelectedLines(lines);
-        }
-      } else if (
-        linesData.stopType === "TransportInterchange" &&
-        linesData.children
-      ) {
-        linesData.children.forEach((child) => {
-          if (
-            child.stopType === "NaptanMetroStation" &&
-            linesData?.lineModeGroups
-          ) {
-            setStationId(child.stationNaptan!);
-            const lines = extractLines("tube", linesData?.lineModeGroups);
-            setAvailableLines(lines);
-            if (availableLines) {
-              setSelectedLines(lines);
-            }
-          }
-        });
-      }
+  const resolvedStationId = useMemo(() => {
+    if (linesData?.stopType !== "TransportInterchange" || !linesData.children) {
+      return stationId;
     }
-  }, [linesData]);
+
+    const stationChild = linesData.children.find(
+      (child) => child.stopType === "NaptanMetroStation" && child.stationNaptan
+    );
+
+    return stationChild?.stationNaptan ?? stationId;
+  }, [linesData, stationId]);
+
+  const availableLines = useMemo(() => {
+    if (!linesData?.lineModeGroups) {
+      return spLines ?? [];
+    }
+
+    return extractLines("tube", linesData.lineModeGroups);
+  }, [linesData, spLines]);
+
+  const selectedOrAvailableLines = selectedLines ?? availableLines;
 
   const onSubmit = (e: FormEvent<HTMLFormElement>, close: () => void) => {
     e.preventDefault();
+    if (!resolvedStationId || !name) {
+      return;
+    }
+
     const params = new URLSearchParams();
-    params.set("stationId", stationId!);
+    params.set("stationId", resolvedStationId);
     params.set("direction", direction);
-    params.set("lines", (selectedLines ?? availableLines).join(","));
-    params.set("name", name!);
+    params.set("lines", selectedOrAvailableLines.join(","));
+    params.set("name", name);
     params.set("variant", variant);
     params.set("size", size.toString());
     router.push(pathname + "?" + params.toString());
@@ -146,11 +137,10 @@ export const StationConfig = ({
             <>
               <DialogHeader className="text-left">
                 <DialogTitle>Change Station</DialogTitle>
-                <Form
+                <form
                   onSubmit={(e) => {
                     onSubmit(e, close);
                   }}
-                  // @ts-ignore react-aria-components doest expose this but it does work
                   id="stationForm"
                   className=" text-gray-200 flex flex-col gap-4 pt-6"
                 >
@@ -173,6 +163,7 @@ export const StationConfig = ({
                     )}
                     onSelectionChange={(value) => {
                       setStationId(value as string);
+                      setSelectedLines(null);
                       setName(
                         searchData?.matches?.find(
                           (ma) => ma.id === (value as string)
@@ -219,8 +210,7 @@ export const StationConfig = ({
                   </RadioGroup>
                   <CheckboxGroup
                     className="flex flex-col gap-2"
-                    value={selectedLines}
-                    defaultValue={selectedLines}
+                    value={selectedOrAvailableLines}
                     onChange={setSelectedLines}
                     name="lines"
                   >
@@ -242,7 +232,6 @@ export const StationConfig = ({
                   <RadioGroup
                     name="theme"
                     onChange={setVariant}
-                    defaultValue={"new"}
                     value={variant}
                     isRequired
                   >
@@ -251,7 +240,6 @@ export const StationConfig = ({
                     <Radio value="new">New</Radio>
                   </RadioGroup>
                   <NumberField
-                    defaultValue={3}
                     minValue={0}
                     value={size}
                     onChange={setSize}
@@ -284,7 +272,7 @@ export const StationConfig = ({
                       is 3
                     </Text>
                   </NumberField>
-                </Form>
+                </form>
               </DialogHeader>
               <DialogFooter>
                 <Button form="stationForm" type="submit">

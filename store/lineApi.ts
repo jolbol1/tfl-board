@@ -40,7 +40,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/Route`,
-        params: { serviceTypes: queryArg.serviceTypes },
+        params: {
+          serviceTypes: queryArg.serviceTypes,
+        },
       }),
     }),
     lineLineRoutesByIdsByPathIdsQueryServiceTypes: build.query<
@@ -49,7 +51,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.ids}/Route`,
-        params: { serviceTypes: queryArg.serviceTypes },
+        params: {
+          serviceTypes: queryArg.serviceTypes,
+        },
       }),
     }),
     lineRouteByModeByPathModesQueryServiceTypes: build.query<
@@ -58,7 +62,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/Mode/${queryArg.modes}/Route`,
-        params: { serviceTypes: queryArg.serviceTypes },
+        params: {
+          serviceTypes: queryArg.serviceTypes,
+        },
       }),
     }),
     lineRouteSequenceByPathIdPathDirectionQueryServiceTypesQueryExcludeCrowding:
@@ -80,7 +86,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.ids}/Status/${queryArg.startDate}/to/${queryArg.endDate}`,
-        params: { detail: queryArg.detail },
+        params: {
+          detail: queryArg.detail,
+        },
       }),
     }),
     lineStatusByIdsByPathIdsQueryDetail: build.query<
@@ -89,7 +97,9 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/${queryArg.ids}/Status`,
-        params: { detail: queryArg.detail },
+        params: {
+          detail: queryArg.detail,
+        },
       }),
     }),
     lineSearchByPathQueryQueryModesQueryServiceTypes: build.query<
@@ -98,7 +108,10 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/Search/${queryArg.query}`,
-        params: { modes: queryArg.modes, serviceTypes: queryArg.serviceTypes },
+        params: {
+          modes: queryArg.modes,
+          serviceTypes: queryArg.serviceTypes,
+        },
       }),
     }),
     lineStatusBySeverityByPathSeverity: build.query<
@@ -368,20 +381,32 @@ export type MetaSeverityGet200ApplicationJsonResponse = Tfl2[];
 export type MetaDisruptionCategoriesGet200ApplicationJsonResponse = string[];
 export type MetaServiceTypesGet200ApplicationJsonResponse = string[];
 export type Tfl3 = {
+  /** Time in 24hr format with 15 minute intervals e.g. 0500-0515, 0515-0530 etc. */
   timeSlice?: string;
+  /** Count of passenger flow towards a platform */
   value?: number;
 };
 export type Tfl4 = {
+  /** The Line Name e.g. "Victoria" */
   line?: string;
+  /** Direction of the Line e.g. NB, SB, WB etc. */
   lineDirection?: string;
+  /** Direction displayed on the platform e.g. NB, SB, WB etc. */
   platformDirection?: string;
+  /** Direction in regards to Journey Planner i.e. inbound or outbound */
   direction?: string;
+  /** Naptan of the adjacent station */
   naptanTo?: string;
+  /** Time in 24hr format with 15 minute intervals e.g. 0500-0515, 0515-0530 etc. */
   timeSlice?: string;
+  /** Scale between 1-6,
+                 1 = Very quiet, 2 = Quiet, 3 = Fairly busy, 4 = Busy, 5 = Very busy, 6 = Exceptionally busy */
   value?: number;
 };
 export type Tfl5 = {
+  /** Busiest times at a station (static information) */
   passengerFlows?: Tfl3[];
+  /** Train Loading on a scale 1-6, 1 being "Very quiet" and 6 being "Exceptionally busy" (static information) */
   trainLoadings?: Tfl4[];
 };
 export type Tfl6 = {
@@ -426,21 +451,32 @@ export type Tfl9 = {
   modified?: string;
 };
 export type Tfl10 = {
+  /** A unique identifier. */
   id?: string;
+  /** The unique location of this resource. */
   url?: string;
+  /** A human readable name. */
   commonName?: string;
+  /** The distance of the place from its search point, if this is the result
+                of a geographical search, otherwise zero. */
   distance?: number;
+  /** The type of Place. See /Place/Meta/placeTypes for possible values. */
   placeType?: string;
+  /** A bag of additional key/value pairs with extra information about this place. */
   additionalProperties?: Tfl9[];
   children?: Tfl10[];
   childrenUrls?: string[];
+  /** WGS84 latitude of the location. */
   lat?: number;
+  /** WGS84 longitude of the location. */
   lon?: number;
 };
 export type Tfl11 = {
   naptanId?: string;
   platformName?: string;
+  /** The indicator of the stop point e.g. "Stop K" */
   indicator?: string;
+  /** The stop letter, if it could be cleansed from the Indicator e.g. "K" */
   stopLetter?: string;
   modes?: string[];
   icsCode?: string;
@@ -455,15 +491,24 @@ export type Tfl11 = {
   fullName?: string;
   naptanMode?: string;
   status?: boolean;
+  /** A unique identifier. */
   id?: string;
+  /** The unique location of this resource. */
   url?: string;
+  /** A human readable name. */
   commonName?: string;
+  /** The distance of the place from its search point, if this is the result
+                of a geographical search, otherwise zero. */
   distance?: number;
+  /** The type of Place. See /Place/Meta/placeTypes for possible values. */
   placeType?: string;
+  /** A bag of additional key/value pairs with extra information about this place. */
   additionalProperties?: Tfl9[];
   children?: Tfl10[];
   childrenUrls?: string[];
+  /** WGS84 latitude of the location. */
   lat?: number;
+  /** WGS84 longitude of the location. */
   lon?: number;
 };
 export type Tfl12 = {
@@ -471,19 +516,30 @@ export type Tfl12 = {
   stopPoint?: Tfl11;
 };
 export type Tfl13 = {
+  /** The Id of the route */
   id?: string;
+  /** The Id of the Line */
   lineId?: string;
+  /** The route code */
   routeCode?: string;
+  /** Name such as "72" */
   name?: string;
+  /** The co-ordinates of the route's path as a geoJSON lineString */
   lineString?: string;
+  /** Inbound or Outbound */
   direction?: string;
+  /** The name of the Origin StopPoint */
   originationName?: string;
+  /** The name of the Destination StopPoint */
   destinationName?: string;
+  /** The DateTime that the Service containing this Route is valid until. */
   validTo?: string;
+  /** The DateTime that the Service containing this Route is valid from. */
   validFrom?: string;
   routeSectionNaptanEntrySequence?: Tfl12[];
 };
 export type Tfl14 = {
+  /** Gets or sets the category of this dispruption. */
   category?:
     | "Undefined"
     | "RealTime"
@@ -492,20 +548,33 @@ export type Tfl14 = {
     | "Event"
     | "Crowding"
     | "StatusAlert";
+  /** Gets or sets the disruption type of this dispruption. */
   type?: string;
+  /** Gets or sets the description of the category. */
   categoryDescription?: string;
+  /** Gets or sets the description of this disruption. */
   description?: string;
+  /** Gets or sets the summary of this disruption. */
   summary?: string;
+  /** Gets or sets the additionaInfo of this disruption. */
   additionalInfo?: string;
+  /** Gets or sets the date/time when this disruption was created. */
   created?: string;
+  /** Gets or sets the date/time when this disruption was last updated. */
   lastUpdate?: string;
+  /** Gets or sets the routes affected by this disruption */
   affectedRoutes?: Tfl13[];
+  /** Gets or sets the stops affected by this disruption */
   affectedStops?: Tfl11[];
+  /** Text describing the closure type */
   closureText?: string;
 };
 export type Tfl15 = {
+  /** Gets or sets the start date. */
   fromDate?: string;
+  /** Gets or sets the end date. */
   toDate?: string;
+  /** If true is a realtime status rather than planned or info */
   isNow?: boolean;
 };
 export type Tfl16 = {
@@ -520,15 +589,25 @@ export type Tfl16 = {
   disruption?: Tfl14;
 };
 export type Tfl17 = {
+  /** The route code */
   routeCode?: string;
+  /** Name such as "72" */
   name?: string;
+  /** Inbound or Outbound */
   direction?: string;
+  /** The name of the Origin StopPoint */
   originationName?: string;
+  /** The name of the Destination StopPoint */
   destinationName?: string;
+  /** The Id (NaPTAN code) of the Origin StopPoint */
   originator?: string;
+  /** The Id (NaPTAN code) or the Destination StopPoint */
   destination?: string;
+  /** Regular or Night */
   serviceType?: string;
+  /** The DateTime that the Service containing this Route is valid until. */
   validTo?: string;
+  /** The DateTime that the Service containing this Route is valid from. */
   validFrom?: string;
 };
 export type Tfl18 = {
@@ -578,8 +657,13 @@ export type Tfl21 = {
   lineId?: string;
   lineName?: string;
   direction?: string;
+  /** The id of this branch. */
   branchId?: number;
+  /** The ids of the next branch(es) in the sequence. Note that the next and previous branch id can be
+                identical in the case of a looped route e.g. the Circle line. */
   nextBranchIds?: number[];
+  /** The ids of the previous branch(es) in the sequence. Note that the next and previous branch id can be
+                identical in the case of a looped route e.g. the Circle line. */
   prevBranchIds?: number[];
   stopPoint?: Tfl20[];
   serviceType?: "Regular" | "Night";
@@ -705,24 +789,43 @@ export type Tfl40 = {
   received?: string;
 };
 export type Tfl41 = {
+  /** The identitier for the prediction */
   id?: string;
+  /** The type of the operation (1: is new or has been updated, 2: should be deleted from any client cache) */
   operationType?: number;
+  /** The actual vehicle in transit (for train modes, the leading car of the rolling set) */
   vehicleId?: string;
+  /** Identifier for the prediction */
   naptanId?: string;
+  /** Station name */
   stationName?: string;
+  /** Unique identifier for the Line */
   lineId?: string;
+  /** Line Name */
   lineName?: string;
+  /** Platform name (for bus, this is the stop letter) */
   platformName?: string;
+  /** Direction (unified to inbound/outbound) */
   direction?: string;
+  /** Bearing (between 0 to 359) */
   bearing?: string;
+  /** Naptan Identifier for the prediction's destination */
   destinationNaptanId?: string;
+  /** Name of the destination */
   destinationName?: string;
+  /** Timestamp for when the prediction was inserted/modified (source column drives what objects are broadcast on each iteration) */
   timestamp?: string;
+  /** Prediction of the Time to station in seconds */
   timeToStation?: number;
+  /** The current location of the vehicle. */
   currentLocation?: string;
+  /** Routing information or other descriptive text about the path of the vehicle towards the destination */
   towards?: string;
+  /** The expected arrival time of the vehicle at the stop/station */
   expectedArrival?: string;
+  /** The expiry time for the prediction */
   timeToLive?: string;
+  /** The mode name of the station/line the prediction relates to */
   modeName?: string;
   timing?: Tfl40;
 };

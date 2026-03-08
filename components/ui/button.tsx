@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { type VariantProps } from "class-variance-authority";
-import { Button, ButtonProps, ButtonRenderProps } from "react-aria-components";
+import { Button, ButtonProps } from "react-aria-components";
 
 import { cn } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ interface _ButtonProps
 const _Button = ({ className, variant, size, ...props }: _ButtonProps) => {
   return (
     <Button
-      className={(values: ButtonRenderProps) =>
+      className={(values) =>
         cn(
           buttonVariants({
             variant,

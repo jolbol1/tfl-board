@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 import { useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery } from "@/store/lineApi";
 import { cn } from "@/lib/utils";
-import { Label, Input, Button, Dialog } from "react-aria-components";
+import { Label, Button, Dialog } from "react-aria-components";
 import { PopoverTrigger, Popover } from "./ui/popover";
 
 class TrainArrival {
@@ -85,14 +85,12 @@ export const TrainTimes: React.FC<{
 
   const {
     data: arrivalData,
-    error: arrivalError,
-    isLoading: loadingError,
     refetch: refetchArrivals,
   } = useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery(
     {
-      ids: availableLines!?.join(","),
-      stopPointId: stationId!,
-      direction: direction,
+      ids: availableLines.join(","),
+      stopPointId: stationId,
+      direction,
     },
     {
       skip: stationId == null || !availableLines || availableLines.length == 0,
@@ -145,7 +143,7 @@ export const TrainTimes: React.FC<{
     ) {
       refetchArrivals();
     }
-  }, [upcomingArrivals]);
+  }, [refetchArrivals, upcomingArrivals]);
 
   let dataArray = upcomingArrivals
     .map((arr, index) => (
