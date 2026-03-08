@@ -1,14 +1,16 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { Text, NumberField, Group } from "react-aria-components";
 import { Label } from "./ui/label";
 import { Radio, RadioGroup } from "./ui/radio-group";
 import {
-  TflApiPresentationEntitiesLineModeGroup,
-  TflApiPresentationEntitiesSearchMatch,
-  useStopPointGetByPathIdQueryIncludeCrowdingDataQuery,
-  useStopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLinesQuery,
-} from "@/store/stopPointApi";
+  fetchStopPoint,
+  fetchStopPointSearch,
+  tflQueryKeys,
+  TflLineModeGroup,
+  TflSearchMatch,
+} from "@/lib/tfl";
 import { FormEvent, useMemo, useState } from "react";
 import {
   Combobox,
@@ -32,7 +34,7 @@ import { Input } from "./ui/input";
 
 const extractLines = (
   mode: string,
-  data: TflApiPresentationEntitiesLineModeGroup[]
+  data: TflLineModeGroup[]
 ) => {
   return data
     .filter((group) => group["modeName"] == mode)
@@ -70,24 +72,25 @@ export const StationConfig = ({
   const searchParams = useSearchParams();
 
   const [name, setName] = useState<string | undefined>(spName);
+  const searchTerm = query ?? "a";
 
-  const {
-    data: searchData,
-  } = useStopPointSearchByPathQueryQueryModesQueryFaresOnlyQueryMaxResultsQueryLinesQuery(
-    {
-      query: query ?? "a",
-      modes: ["tube"],
-    }
-  );
+  const { data: searchData } = useQuery({
+    queryKey: tflQueryKeys.stopPointSearch(searchTerm, ["tube"]),
+    queryFn: () =>
+      fetchStopPointSearch({
+        query: searchTerm,
+        modes: ["tube"],
+      }),
+  });
 
-  const {
-    data: linesData,
-  } = useStopPointGetByPathIdQueryIncludeCrowdingDataQuery(
-    {
-      id: `${stationId}`,
-    },
-    { skip: stationId == undefined }
-  );
+  const { data: linesData } = useQuery({
+    queryKey: tflQueryKeys.stopPoint(stationId ?? ""),
+    queryFn: () =>
+      fetchStopPoint({
+        id: stationId!,
+      }),
+    enabled: stationId != null,
+  });
 
   const resolvedStationId = useMemo(() => {
     if (linesData?.stopType !== "TransportInterchange" || !linesData.children) {
@@ -183,7 +186,7 @@ export const StationConfig = ({
                       Begin typing to search for a station
                     </Text>
                     <ComboboxPopover>
-                      <ComboboxListBox<TflApiPresentationEntitiesSearchMatch>>
+                      <ComboboxListBox<TflSearchMatch>>
                         {(item) => (
                           <ComboboxItem
                             key={item.name}

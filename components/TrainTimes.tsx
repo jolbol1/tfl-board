@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import React, { useEffect, useMemo, useState } from "react";
 
-import { useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery } from "@/store/lineApi";
+import { fetchArrivals, tflQueryKeys } from "@/lib/tfl";
 import { cn } from "@/lib/utils";
 import { Label, Button, Dialog } from "react-aria-components";
 import { PopoverTrigger, Popover } from "./ui/popover";
@@ -24,11 +25,13 @@ class TrainArrival {
     lineName?: string;
     platformName?: string;
     currentLocation?: string;
+    now?: number;
   }) {
     this.id = item.id;
     this.timeOfExpectedArrival = item.timeOfExpectedArrival; // Date.now() returns milliseconds
     this.timeToStation =
-      item.timeToStation ?? (this.timeOfExpectedArrival - Date.now()) / 1000;
+      item.timeToStation ??
+      (this.timeOfExpectedArrival - (item.now ?? Date.now())) / 1000;
     this.destinationName = this.formatDestinationStationName(
       item.destinationName
     );
@@ -81,69 +84,60 @@ export const TrainTimes: React.FC<{
   stationId,
   size = 3,
 }) => {
-  const [upcomingArrivals, setUpcomingArrivals] = useState<TrainArrival[]>([]);
+  const [now, setNow] = useState(() => Date.now());
+  const ids = availableLines.join(",");
 
-  const {
-    data: arrivalData,
-    refetch: refetchArrivals,
-  } = useLineArrivalsWithStopPointByPathIdsPathStopPointIdQueryDirectionQueryDestinaQuery(
-    {
-      ids: availableLines.join(","),
-      stopPointId: stationId,
-      direction,
-    },
-    {
-      skip: stationId == null || !availableLines || availableLines.length == 0,
-      pollingInterval: 90000,
-    }
-  );
+  const { data: arrivalData, isFetching, refetch } = useQuery({
+    queryKey: tflQueryKeys.arrivals(ids, stationId, direction),
+    queryFn: () =>
+      fetchArrivals({
+        ids,
+        stopPointId: stationId,
+        direction,
+      }),
+    enabled: stationId != null && availableLines.length > 0,
+    refetchInterval: 90000,
+  });
 
   useEffect(() => {
-    // Define a function to perform the desired action
-    const fetchData = () => {
-      if (arrivalData) {
-        const sorted = [...arrivalData].sort(
-          (a, b) =>
-            (a.timeToStation ?? Number.MAX_SAFE_INTEGER) -
-            (b.timeToStation ?? Number.MAX_SAFE_INTEGER)
-        );
-
-        setUpcomingArrivals(
-          sorted.map(
-            (arrival) =>
-              new TrainArrival({
-                id: arrival.id!,
-                destinationName: arrival.destinationName!,
-                timeOfExpectedArrival: new Date(
-                  arrival.expectedArrival!
-                ).getTime(),
-                lineName: arrival.lineName,
-                platformName: arrival.platformName,
-                currentLocation: arrival.currentLocation,
-              })
-          )
-        );
-      }
-    };
-
-    // Run the function immediately
-    fetchData();
-
-    // Set up the interval to run the function every 10 seconds
-    const interval = setInterval(fetchData, 10000);
-
-    // Clear the interval when the component unmounts or arrivalData changes
+    const interval = setInterval(() => setNow(Date.now()), 10000);
     return () => clearInterval(interval);
-  }, [arrivalData]);
+  }, []);
+
+  const upcomingArrivals = useMemo(() => {
+    if (!arrivalData) {
+      return [];
+    }
+
+    return [...arrivalData]
+      .sort(
+        (a, b) =>
+          (a.timeToStation ?? Number.MAX_SAFE_INTEGER) -
+          (b.timeToStation ?? Number.MAX_SAFE_INTEGER)
+      )
+      .map(
+        (arrival) =>
+          new TrainArrival({
+            id: arrival.id!,
+            destinationName: arrival.destinationName!,
+            timeOfExpectedArrival: new Date(arrival.expectedArrival!).getTime(),
+            lineName: arrival.lineName,
+            platformName: arrival.platformName,
+            currentLocation: arrival.currentLocation,
+            now,
+          })
+      );
+  }, [arrivalData, now]);
 
   useEffect(() => {
     if (
+      !isFetching &&
       upcomingArrivals.length > 0 &&
       upcomingArrivals.some((arr) => arr.timeToStation < 0)
     ) {
-      refetchArrivals();
+      void refetch();
     }
-  }, [refetchArrivals, upcomingArrivals]);
+  }, [isFetching, refetch, upcomingArrivals]);
 
   let dataArray = upcomingArrivals
     .map((arr, index) => (
