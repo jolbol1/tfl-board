@@ -1,78 +1,21 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 import { fetchArrivals, tflQueryKeys } from "@/lib/tfl";
-import { cn } from "@/lib/utils";
-import { Label, Button, Dialog } from "react-aria-components";
-import { PopoverTrigger, Popover } from "./ui/popover";
 
-class TrainArrival {
-  id: string;
-  timeOfExpectedArrival: number;
-  timeToStation: number;
-  destinationName: string;
-  isTrainApproaching: boolean;
-  lineName?: string;
-  platformName?: string;
-  currentLocation?: string;
-
-  constructor(item: {
-    id: string;
-    timeOfExpectedArrival: number;
-    timeToStation?: number;
-    destinationName: string;
-    lineName?: string;
-    platformName?: string;
-    currentLocation?: string;
-    now?: number;
-  }) {
-    this.id = item.id;
-    this.timeOfExpectedArrival = item.timeOfExpectedArrival; // Date.now() returns milliseconds
-    this.timeToStation =
-      item.timeToStation ??
-      (this.timeOfExpectedArrival - (item.now ?? Date.now())) / 1000;
-    this.destinationName = this.formatDestinationStationName(
-      item.destinationName
-    );
-    this.isTrainApproaching = this.timeToStation < 30;
-    this.lineName = item.lineName;
-    this.platformName = item.platformName;
-    this.currentLocation = item.currentLocation;
-  }
-
-  private formatDestinationStationName(stationName: string): string {
-    return stationName
-      ?.replace("Underground Station", "")
-      .replace("(H&C Line)", "")
-      .trim();
-  }
-}
-
-const buildArrivalTime = (arrival: TrainArrival) => {
-  const timeToStation = arrival.timeToStation;
-
-  let arrivalTime: string = "";
-  let arrivalText: string = "";
-
-  if (timeToStation >= 60) {
-    // Round up to the next minute
-    arrivalTime = Math.ceil(timeToStation / 60).toString();
-    arrivalText = " mins";
-  } else if (timeToStation < 60 && timeToStation > 30) {
-    // Round up to 1 minute
-    arrivalTime = Math.ceil(timeToStation / 60).toString();
-    arrivalText = " min";
-  } else {
-    // Return an empty string indicating that train is due
-    arrivalText = "";
-  }
-
-  return arrivalTime + arrivalText;
-};
+import { ArrivalRow } from "./train-times/ArrivalRow";
+import { BoardRow } from "./train-times/BoardRow";
+import { FinalBoardSlot } from "./train-times/FinalBoardSlot";
+import type { BoardVariant, TrainArrivalView } from "./train-times/types";
+import {
+  getArrivalsRefetchInterval,
+  sortArrivals,
+  toArrivalView,
+} from "./train-times/utils";
 
 export const TrainTimes: React.FC<{
-  variant?: "old" | "new";
+  variant?: BoardVariant;
   stationId: string;
   direction: "inbound" | "outbound";
   availableLines: string[];
@@ -84,10 +27,9 @@ export const TrainTimes: React.FC<{
   stationId,
   size = 3,
 }) => {
-  const [now, setNow] = useState(() => Date.now());
   const ids = availableLines.join(",");
 
-  const { data: arrivalData, isFetching, refetch } = useQuery({
+  const { data: arrivalData } = useQuery({
     queryKey: tflQueryKeys.arrivals(ids, stationId, direction),
     queryFn: () =>
       fetchArrivals({
@@ -96,128 +38,49 @@ export const TrainTimes: React.FC<{
         direction,
       }),
     enabled: stationId != null && availableLines.length > 0,
-    refetchInterval: 90000,
+    refetchInterval: (query) => getArrivalsRefetchInterval(query.state.data),
+    select: sortArrivals,
   });
 
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const upcomingArrivals = useMemo(() => {
+  const arrivals = useMemo<TrainArrivalView[]>(() => {
     if (!arrivalData) {
       return [];
     }
 
-    return [...arrivalData]
-      .sort(
-        (a, b) =>
-          (a.timeToStation ?? Number.MAX_SAFE_INTEGER) -
-          (b.timeToStation ?? Number.MAX_SAFE_INTEGER)
-      )
-      .map(
-        (arrival) =>
-          new TrainArrival({
-            id: arrival.id!,
-            destinationName: arrival.destinationName!,
-            timeOfExpectedArrival: new Date(arrival.expectedArrival!).getTime(),
-            lineName: arrival.lineName,
-            platformName: arrival.platformName,
-            currentLocation: arrival.currentLocation,
-            now,
-          })
+    return arrivalData.map(toArrivalView);
+  }, [arrivalData]);
+
+  const rowCount = size > 0 ? (size < 3 ? 3 : size) : Math.max(3, arrivals.length);
+  const filledRows = Array.from({ length: rowCount }, (_, index) => arrivals[index]);
+
+  const dataArray = filledRows.map((arrival, index) => {
+    const isLastRow = index === filledRows.length - 1;
+
+    if (isLastRow) {
+      return (
+        <FinalBoardSlot
+          key={arrival?.id ?? `final-row-${index}`}
+          arrivals={arrivals}
+          arrival={arrival}
+          index={index}
+          variant={variant}
+        />
       );
-  }, [arrivalData, now]);
-
-  useEffect(() => {
-    if (
-      !isFetching &&
-      upcomingArrivals.length > 0 &&
-      upcomingArrivals.some((arr) => arr.timeToStation < 0)
-    ) {
-      void refetch();
     }
-  }, [isFetching, refetch, upcomingArrivals]);
 
-  let dataArray = upcomingArrivals
-    .map((arr, index) => (
-      <PopoverTrigger key={arr.id}>
-        <Button className="hover:underline underline-offset-4 focus:outline-none focus:underline">
-          <BoardRow variant={variant} key={arr.id}>
-            <span>{`${index + 1} ${arr.destinationName}`}</span>
-            <span>{buildArrivalTime(arr)}</span>
-          </BoardRow>
-        </Button>
-        <Popover
-          isKeyboardDismissDisabled={false}
-          className="w-fit max-w-[95%]"
-          placement="bottom start"
-        >
-          <Dialog className="grid gap-4 focus:outline-none">
-            <div className="space-y-2">
-              <h4 className="font-medium leading-none">Details</h4>
-              <p className="text-sm text-muted-foreground">
-                Last location updates every 90s.
-              </p>
-            </div>{" "}
-            <div className="grid gap-2">
-              <div className="grid grid-cols-2 items-center gap-4">
-                <Label htmlFor="width">Platform</Label>
-                {arr.platformName}
-              </div>
-              <div className="grid grid-cols-2 items-center gap-4">
-                <Label htmlFor="maxWidth">Line</Label>
-                {arr.lineName}
-              </div>
-              <div className="grid grid-cols-2 items-center gap-4">
-                <Label htmlFor="height">Last Location</Label>
-                {arr.currentLocation}
-              </div>
-            </div>
-          </Dialog>
-        </Popover>
-      </PopoverTrigger>
-    ))
-    .concat(
-      new Array(Math.max(0, 3 - upcomingArrivals.length))
-        .fill("")
-        .map((s, index) => (
-          <BoardRow variant={variant} key={"emptyIdx" + index} />
-        ))
+    if (!arrival) {
+      return <BoardRow variant={variant} key={`emptyIdx${index}`} />;
+    }
+
+    return (
+      <ArrivalRow
+        key={arrival.id}
+        arrival={arrival}
+        index={index}
+        variant={variant}
+      />
     );
-
-  if (size > 0) {
-    dataArray = dataArray.slice(0, size < 3 ? 3 : size);
-  }
-
-  if (upcomingArrivals.some((s) => s.isTrainApproaching)) {
-    dataArray[dataArray.length - 1] = (
-      <TrainApproaching key="trainApproach" variant={variant} />
-    );
-  }
+  });
 
   return <>{dataArray}</>;
 };
-
-export const TrainApproaching: React.FC<{ variant?: "old" | "new" }> = ({
-  ...props
-}) => (
-  <BoardRow className="justify-center" {...props}>
-    <p className="blink text-center">*** STAND BACK - TRAIN APPROACHING ***</p>
-  </BoardRow>
-);
-
-export const BoardRow = ({
-  className,
-  variant = "old",
-  ...props
-}: React.HTMLAttributes<HTMLDivElement> & { variant?: "old" | "new" }) => (
-  <div
-    className={cn(
-      "w-full flex justify-between pt-2 px-1 ",
-      { "bg-yellow-400/5": variant === "old" },
-      className
-    )}
-    {...props}
-  />
-);
