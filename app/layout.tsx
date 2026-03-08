@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import StoreProvider from "@/components/StoreProvider";
+import QueryProvider from "@/components/QueryProvider";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -57,7 +57,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${tfl.variable} ${inter.className} relative z-10 flex h-[100dvh] max-h-[100dvh] max-w-[100dvw] flex-col overflow-y-auto bg-black px-2`}
       >
-        <StoreProvider>
+        <QueryProvider>
           <div
             className="absolute inset-0 z-[-1] h-full w-full"
           >
@@ -76,7 +76,7 @@ export default function RootLayout({
               James Shopland
             </Link>
           </footer>
-        </StoreProvider>
+        </QueryProvider>
       </body>
     </html>
   );
