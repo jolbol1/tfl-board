@@ -46,6 +46,8 @@ const extractLines = (
     .flat();
 };
 
+const STATION_SEARCH_INPUT_ID = "station-search";
+
 export const StationConfig = ({
   spStationId,
   spDirection,
@@ -203,7 +205,6 @@ export const StationConfig = ({
                 onInputValueChange={(value) => {
                   setQuery(value || undefined);
                 }}
-                aria-label="station select"
                 name="station"
                 required
                 value={selectedStation}
@@ -217,9 +218,10 @@ export const StationConfig = ({
                   setName(value?.name);
                 }}
               >
-                <Label>Search Station</Label>
+                <Label htmlFor={STATION_SEARCH_INPUT_ID}>Search Station</Label>
                 <ComboboxInput
                   className="w-full"
+                  id={STATION_SEARCH_INPUT_ID}
                   placeholder="Search Station"
                 />
                 <DialogDescription className="text-sm text-muted-foreground">
