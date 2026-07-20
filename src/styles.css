@@ -2,9 +2,43 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@font-face {
+  font-family: "London Underground";
+  src: url("../assets/fonts/LondonUndergroundRegular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "London Underground";
+  src: url("../assets/fonts/LondonUndergroundMedium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "London Underground";
+  src: url("../assets/fonts/LondonUndergroundBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "London Underground";
+  src: url("../assets/fonts/LondonUndergroundHeavy.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
+    --font-inter-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    --font-board-family: "London Underground";
     --background: oklch(1 0 0);
     --foreground: oklch(0.148 0.004 228.8);
     --card: oklch(1 0 0);
@@ -142,3 +176,4 @@
 .blink {
   animation: blink 3s linear infinite;
 }
+

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 
 export const COUNTDOWN_INTERVAL_MS = 10_000;

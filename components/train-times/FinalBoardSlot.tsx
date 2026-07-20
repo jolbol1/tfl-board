@@ -1,5 +1,3 @@
-"use client";
-
 import { ArrivalRow } from "./ArrivalRow";
 import { BoardRow, TrainApproaching } from "./BoardRow";
 import { COUNTDOWN_INTERVAL_MS, isTrainApproaching, useNow } from "./time";

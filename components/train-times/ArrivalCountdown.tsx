@@ -1,5 +1,3 @@
-"use client";
-
 import { buildArrivalTime, COUNTDOWN_INTERVAL_MS, useNow } from "./time";
 
 export const ArrivalCountdown = ({
