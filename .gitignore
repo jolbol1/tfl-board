@@ -25,10 +25,7 @@ next-env.d.ts
 # misc
 .DS_Store
 *.pem
-/.agents/
-/.claude/skills/
 /.claude/worktrees/
-/skills-lock.json
 
 # debug
 npm-debug.log*
