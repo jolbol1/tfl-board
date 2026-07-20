@@ -11,6 +11,10 @@
 
 # production
 /build
+dist/
+/.wrangler/
+
+# legacy Nitro output from the previous deployment adapter
 /.output/
 /.nitro/
 

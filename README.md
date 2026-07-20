@@ -7,7 +7,7 @@ A React app that recreates London Underground departure boards with live data fr
 - TanStack Start with TanStack Router file-based routing
 - React 19 and TanStack Query
 - Vite 8, Tailwind CSS 4, and TypeScript
-- Nitro's provider-agnostic Node deployment adapter
+- Cloudflare Workers through the official Cloudflare Vite plugin
 - Base UI and shadcn components
 - pnpm
 
@@ -36,14 +36,35 @@ pnpm build
 
 There are no test files yet, so the isolated Vitest config currently passes with no tests while remaining ready for future coverage.
 
-## Production
+## Cloudflare Workers
 
 ```sh
 pnpm build
-pnpm start
+pnpm preview
 ```
 
-The default TanStack CLI Nitro adapter emits a Node server at `.output/server/index.mjs`. Configure a host such as Vercel or Railway to run `pnpm build`; Nitro selects the deployment behavior for the host environment. Confirm the provider detects the Nitro output before switching production traffic from the previous Next.js deployment.
+The Worker is configured in `wrangler.jsonc` with the `nodejs_compat` compatibility flag and TanStack Start's server entry. No application environment variables or API keys are required.
+
+Before the first deployment, authenticate Wrangler and confirm the active account:
+
+```sh
+pnpm exec wrangler login
+pnpm exec wrangler whoami
+```
+
+Generate Cloudflare binding types after changing `wrangler.jsonc` bindings:
+
+```sh
+pnpm cf-typegen
+```
+
+Deploy with:
+
+```sh
+pnpm deploy
+```
+
+`pnpm deploy` runs the production build before publishing. If secrets or bindings are added later, configure them through Wrangler/Cloudflare and access Worker bindings per request; do not assume module-scope `process.env` is populated in Workers.
 
 ## URL state
 
