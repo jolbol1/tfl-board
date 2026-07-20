@@ -18,7 +18,14 @@ export const sortArrivals = (arrivals: TflArrival[]) =>
     (a, b) => getExpectedArrivalTime(a) - getExpectedArrivalTime(b)
   );
 
-export const getArrivalsRefetchInterval = (arrivals?: TflArrival[]) => {
+export const getArrivalsRefetchInterval = (
+  arrivals?: TflArrival[],
+  hasError = false
+) => {
+  if (hasError) {
+    return DEFAULT_REFETCH_INTERVAL_MS;
+  }
+
   if (!arrivals?.length) {
     return DEFAULT_REFETCH_INTERVAL_MS;
   }

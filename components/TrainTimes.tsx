@@ -28,7 +28,7 @@ export const TrainTimes: React.FC<{
 }) => {
   const ids = availableLines.join(",");
 
-  const { data: arrivalData } = useQuery({
+  const { data: arrivalData, isError } = useQuery({
     queryKey: tflQueryKeys.arrivals(ids, stationId, direction),
     queryFn: () =>
       fetchArrivals({
@@ -37,7 +37,11 @@ export const TrainTimes: React.FC<{
         direction,
       }),
     enabled: stationId != null && availableLines.length > 0,
-    refetchInterval: (query) => getArrivalsRefetchInterval(query.state.data),
+    refetchInterval: (query) =>
+      getArrivalsRefetchInterval(
+        query.state.data,
+        query.state.error !== null
+      ),
     select: sortArrivals,
   });
 
@@ -81,5 +85,14 @@ export const TrainTimes: React.FC<{
     );
   });
 
-  return <>{dataArray}</>;
+  return (
+    <>
+      {isError ? (
+        <BoardRow className="justify-center" role="alert" variant={variant}>
+          <p>Live arrivals are temporarily unavailable — retrying.</p>
+        </BoardRow>
+      ) : null}
+      {dataArray}
+    </>
+  );
 };
