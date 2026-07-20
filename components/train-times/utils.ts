@@ -5,27 +5,30 @@ import type { TrainArrivalView } from "./types";
 const DEFAULT_REFETCH_INTERVAL_MS = 90_000;
 const MIN_REFETCH_INTERVAL_MS = 1_000;
 
+export const getBoardRowCount = (size: number, arrivalCount: number) =>
+  size > 0 ? Math.max(3, size) : Math.max(3, arrivalCount + 1);
+
 export const formatDestinationStationName = (stationName: string) =>
   stationName
     .replace("Underground Station", "")
     .trim();
 
-export const getExpectedArrivalTime = (arrival: TflArrival) => {
-  if (!arrival.expectedArrival) {
-    return Number.MAX_SAFE_INTEGER;
-  }
-
-  const timestamp = new Date(arrival.expectedArrival).getTime();
-
-  return Number.isFinite(timestamp) ? timestamp : Number.MAX_SAFE_INTEGER;
-};
+export const getExpectedArrivalTime = (arrival: TflArrival) =>
+  new Date(arrival.expectedArrival).getTime();
 
 export const sortArrivals = (arrivals: TflArrival[]) =>
   [...arrivals].sort(
     (a, b) => getExpectedArrivalTime(a) - getExpectedArrivalTime(b)
   );
 
-export const getArrivalsRefetchInterval = (arrivals?: TflArrival[]) => {
+export const getArrivalsRefetchInterval = (
+  arrivals?: TflArrival[],
+  hasError = false
+) => {
+  if (hasError) {
+    return DEFAULT_REFETCH_INTERVAL_MS;
+  }
+
   if (!arrivals?.length) {
     return DEFAULT_REFETCH_INTERVAL_MS;
   }
@@ -49,8 +52,8 @@ export const getArrivalsRefetchInterval = (arrivals?: TflArrival[]) => {
 };
 
 export const toArrivalView = (arrival: TflArrival): TrainArrivalView => ({
-  id: arrival.id!,
-  destinationName: formatDestinationStationName(arrival.destinationName!),
+  id: arrival.id,
+  destinationName: formatDestinationStationName(arrival.destinationName),
   timeOfExpectedArrival: getExpectedArrivalTime(arrival),
   lineName: arrival.lineName,
   platformName: arrival.platformName,

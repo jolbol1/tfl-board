@@ -31,6 +31,25 @@ function toStationEntries(stopPoints) {
   );
 }
 
+function parseStationsPayload(payload) {
+  if (
+    !payload ||
+    typeof payload !== "object" ||
+    !Array.isArray(payload.stopPoints) ||
+    payload.stopPoints.length === 0
+  ) {
+    throw new Error("TfL station response did not contain any stop points");
+  }
+
+  const stations = toStationEntries(payload.stopPoints);
+
+  if (stations.length === 0) {
+    throw new Error("TfL station response did not contain any valid stations");
+  }
+
+  return stations;
+}
+
 async function main() {
   const response = await fetch(SOURCE_URL, {
     headers: {
@@ -43,7 +62,7 @@ async function main() {
   }
 
   const payload = await response.json();
-  const stations = toStationEntries(payload.stopPoints ?? []);
+  const stations = parseStationsPayload(payload);
 
   await mkdir(dirname(OUTPUT_FILE_PATH), { recursive: true });
   await writeFile(OUTPUT_FILE_PATH, `${JSON.stringify(stations, null, 2)}\n`, "utf8");

@@ -1,13 +1,12 @@
 const BASE_URL = "https://api.tfl.gov.uk";
 
 export type TflArrival = {
-  id?: string;
-  destinationName?: string;
-  expectedArrival?: string;
+  id: string;
+  destinationName: string;
+  expectedArrival: string;
   lineName?: string;
   platformName?: string;
   currentLocation?: string;
-  timeToStation?: number;
 };
 
 export type TflSearchMatch = {
@@ -63,6 +62,51 @@ export const tflQueryKeys = {
   stopPoint: (stationId: string) => ["stopPoint", stationId] as const,
 };
 
+function readOptionalString(value: unknown) {
+  return typeof value === "string" ? value : undefined;
+}
+
+export function parseTflArrivals(value: unknown): TflArrival[] {
+  if (!Array.isArray(value)) {
+    throw new Error("TfL arrivals response was not an array");
+  }
+
+  return value.flatMap((candidate) => {
+    if (!candidate || typeof candidate !== "object") {
+      return [];
+    }
+
+    const { id, destinationName, expectedArrival } = candidate as Record<
+      string,
+      unknown
+    >;
+
+    if (
+      typeof id !== "string" ||
+      id.length === 0 ||
+      typeof destinationName !== "string" ||
+      destinationName.length === 0 ||
+      typeof expectedArrival !== "string" ||
+      !Number.isFinite(Date.parse(expectedArrival))
+    ) {
+      return [];
+    }
+
+    const arrival = candidate as Record<string, unknown>;
+
+    return [
+      {
+        id,
+        destinationName,
+        expectedArrival,
+        lineName: readOptionalString(arrival.lineName),
+        platformName: readOptionalString(arrival.platformName),
+        currentLocation: readOptionalString(arrival.currentLocation),
+      },
+    ];
+  });
+}
+
 export async function fetchArrivals({
   ids,
   stopPointId,
@@ -75,10 +119,12 @@ export async function fetchArrivals({
   const searchParams = new URLSearchParams();
   searchParams.set("direction", direction);
 
-  return fetchTflJson<TflArrival[]>({
+  const payload = await fetchTflJson<unknown>({
     path: `Line/${ids}/Arrivals/${stopPointId}`,
     searchParams,
   });
+
+  return parseTflArrivals(payload);
 }
 
 export async function fetchStopPoint({

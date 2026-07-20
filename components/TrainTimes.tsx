@@ -9,6 +9,7 @@ import { FinalBoardSlot } from "./train-times/FinalBoardSlot";
 import type { BoardVariant, TrainArrivalView } from "./train-times/types";
 import {
   getArrivalsRefetchInterval,
+  getBoardRowCount,
   sortArrivals,
   toArrivalView,
 } from "./train-times/utils";
@@ -28,7 +29,7 @@ export const TrainTimes: React.FC<{
 }) => {
   const ids = availableLines.join(",");
 
-  const { data: arrivalData } = useQuery({
+  const { data: arrivalData, isError } = useQuery({
     queryKey: tflQueryKeys.arrivals(ids, stationId, direction),
     queryFn: () =>
       fetchArrivals({
@@ -37,7 +38,11 @@ export const TrainTimes: React.FC<{
         direction,
       }),
     enabled: stationId != null && availableLines.length > 0,
-    refetchInterval: (query) => getArrivalsRefetchInterval(query.state.data),
+    refetchInterval: (query) =>
+      getArrivalsRefetchInterval(
+        query.state.data,
+        query.state.error !== null
+      ),
     select: sortArrivals,
   });
 
@@ -49,7 +54,7 @@ export const TrainTimes: React.FC<{
     return arrivalData.map(toArrivalView);
   }, [arrivalData]);
 
-  const rowCount = size > 0 ? (size < 3 ? 3 : size) : Math.max(3, arrivals.length);
+  const rowCount = getBoardRowCount(size, arrivals.length);
   const filledRows = Array.from({ length: rowCount }, (_, index) => arrivals[index]);
 
   const dataArray = filledRows.map((arrival, index) => {
@@ -81,5 +86,14 @@ export const TrainTimes: React.FC<{
     );
   });
 
-  return <>{dataArray}</>;
+  return (
+    <>
+      {isError ? (
+        <BoardRow className="justify-center" role="alert" variant={variant}>
+          <p>Live arrivals are temporarily unavailable — retrying.</p>
+        </BoardRow>
+      ) : null}
+      {dataArray}
+    </>
+  );
 };
