@@ -3,6 +3,7 @@ import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { Clock } from "@/components/Clock";
 import { StationConfig } from "@/components/StationConfig";
 import { TrainTimes } from "@/components/TrainTimes";
+import { normalizeBoardSize } from "@/lib/board-size";
 import { cn } from "@/lib/utils";
 
 const defaultSearch = {
@@ -33,8 +34,7 @@ function readLines(value: unknown) {
 }
 
 function readSize(value: unknown) {
-  const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isInteger(parsed) && parsed >= 0 ? parsed : defaultSearch.size;
+  return normalizeBoardSize(value, defaultSearch.size);
 }
 
 const validateSearch = (search: Record<string, unknown>) => ({

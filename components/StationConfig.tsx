@@ -33,6 +33,7 @@ import {
   Input,
 } from "./ui/input";
 import tubeStations from "@/data/tube-stations.json";
+import { MAX_BOARD_ROWS, normalizeBoardSize } from "@/lib/board-size";
 
 const extractLines = (
   mode: string,
@@ -138,14 +139,7 @@ export const StationConfig = ({
   };
 
   const updateSize = (value: string) => {
-    const parsedValue = Number.parseInt(value, 10);
-
-    if (Number.isNaN(parsedValue)) {
-      setSize(0);
-      return;
-    }
-
-    setSize(Math.max(0, parsedValue));
+    setSize(normalizeBoardSize(value, 0));
   };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -288,6 +282,7 @@ export const StationConfig = ({
                   id="rows"
                   type="number"
                   min={0}
+                  max={MAX_BOARD_ROWS}
                   value={size}
                   onChange={(event) => {
                     updateSize(event.target.value);
