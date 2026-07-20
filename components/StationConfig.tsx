@@ -77,7 +77,12 @@ export const StationConfig = ({
 
   const [name, setName] = useState<string | undefined>(spName);
 
-  const { data: linesData } = useQuery({
+  const {
+    data: linesData,
+    isError: isStationMetadataError,
+    isFetching: isStationMetadataFetching,
+    refetch: refetchStationMetadata,
+  } = useQuery({
     queryKey: tflQueryKeys.stopPoint(stationId ?? ""),
     queryFn: () =>
       fetchStopPoint({
@@ -100,13 +105,20 @@ export const StationConfig = ({
 
   const availableLines = useMemo(() => {
     if (!linesData?.lineModeGroups) {
-      return spLines ?? [];
+      return stationId === spStationId ? (spLines ?? []) : [];
     }
 
     return extractLines("tube", linesData.lineModeGroups);
-  }, [linesData, spLines]);
+  }, [linesData, spLines, spStationId, stationId]);
 
   const selectedOrAvailableLines = selectedLines ?? availableLines;
+  const needsStationMetadata = Boolean(
+    stationId && stationId !== spStationId && !linesData
+  );
+  const isLoadingStationMetadata =
+    needsStationMetadata && isStationMetadataFetching;
+  const hasStationMetadataError =
+    needsStationMetadata && isStationMetadataError;
   const selectedStation = useMemo<TflSearchMatch | null>(() => {
     if (!stationId || !name) {
       return null;
@@ -144,7 +156,12 @@ export const StationConfig = ({
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!resolvedStationId || !name) {
+    if (
+      !resolvedStationId ||
+      !name ||
+      selectedOrAvailableLines.length === 0 ||
+      needsStationMetadata
+    ) {
       return;
     }
 
@@ -258,6 +275,26 @@ export const StationConfig = ({
                     ))
                   : null}
               </CheckboxGroup>
+              {isLoadingStationMetadata ? (
+                <p className="text-sm text-muted-foreground" role="status">
+                  Loading lines for the selected station…
+                </p>
+              ) : null}
+              {hasStationMetadataError ? (
+                <div className="flex items-center gap-2" role="alert">
+                  <p className="text-sm text-destructive">
+                    Unable to load lines for this station.
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void refetchStationMetadata()}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : null}
               <RadioGroup
                 name="theme"
                 onValueChange={(value) => {
@@ -298,7 +335,16 @@ export const StationConfig = ({
             <DialogClose render={<Button variant="outline" />}>
               Cancel
             </DialogClose>
-            <Button form="stationForm" type="submit">
+            <Button
+              disabled={
+                !resolvedStationId ||
+                !name ||
+                selectedOrAvailableLines.length === 0 ||
+                needsStationMetadata
+              }
+              form="stationForm"
+              type="submit"
+            >
               Save changes
             </Button>
           </DialogFooter>
