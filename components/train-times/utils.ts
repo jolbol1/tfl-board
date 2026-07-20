@@ -10,15 +10,8 @@ export const formatDestinationStationName = (stationName: string) =>
     .replace("Underground Station", "")
     .trim();
 
-export const getExpectedArrivalTime = (arrival: TflArrival) => {
-  if (!arrival.expectedArrival) {
-    return Number.MAX_SAFE_INTEGER;
-  }
-
-  const timestamp = new Date(arrival.expectedArrival).getTime();
-
-  return Number.isFinite(timestamp) ? timestamp : Number.MAX_SAFE_INTEGER;
-};
+export const getExpectedArrivalTime = (arrival: TflArrival) =>
+  new Date(arrival.expectedArrival).getTime();
 
 export const sortArrivals = (arrivals: TflArrival[]) =>
   [...arrivals].sort(
@@ -49,8 +42,8 @@ export const getArrivalsRefetchInterval = (arrivals?: TflArrival[]) => {
 };
 
 export const toArrivalView = (arrival: TflArrival): TrainArrivalView => ({
-  id: arrival.id!,
-  destinationName: formatDestinationStationName(arrival.destinationName!),
+  id: arrival.id,
+  destinationName: formatDestinationStationName(arrival.destinationName),
   timeOfExpectedArrival: getExpectedArrivalTime(arrival),
   lineName: arrival.lineName,
   platformName: arrival.platformName,
