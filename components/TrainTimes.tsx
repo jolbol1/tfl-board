@@ -9,6 +9,7 @@ import { FinalBoardSlot } from "./train-times/FinalBoardSlot";
 import type { BoardVariant, TrainArrivalView } from "./train-times/types";
 import {
   getArrivalsRefetchInterval,
+  getBoardRowCount,
   sortArrivals,
   toArrivalView,
 } from "./train-times/utils";
@@ -53,7 +54,7 @@ export const TrainTimes: React.FC<{
     return arrivalData.map(toArrivalView);
   }, [arrivalData]);
 
-  const rowCount = size > 0 ? (size < 3 ? 3 : size) : Math.max(3, arrivals.length);
+  const rowCount = getBoardRowCount(size, arrivals.length);
   const filledRows = Array.from({ length: rowCount }, (_, index) => arrivals[index]);
 
   const dataArray = filledRows.map((arrival, index) => {

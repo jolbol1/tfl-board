@@ -5,6 +5,9 @@ import type { TrainArrivalView } from "./types";
 const DEFAULT_REFETCH_INTERVAL_MS = 90_000;
 const MIN_REFETCH_INTERVAL_MS = 1_000;
 
+export const getBoardRowCount = (size: number, arrivalCount: number) =>
+  size > 0 ? Math.max(3, size) : Math.max(3, arrivalCount + 1);
+
 export const formatDestinationStationName = (stationName: string) =>
   stationName
     .replace("Underground Station", "")
