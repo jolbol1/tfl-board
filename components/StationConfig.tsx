@@ -1,15 +1,14 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import {
   fetchStopPoint,
   tflQueryKeys,
-  TflLineModeGroup,
-  TflSearchMatch,
 } from "@/lib/tfl";
-import { FormEvent, useMemo, useState } from "react";
+import type { TflLineModeGroup, TflSearchMatch } from "@/lib/tfl";
+import { useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import {
   Combobox,
   ComboboxContent,
@@ -30,7 +29,6 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { usePathname, useRouter } from "next/navigation";
 import {
   Input,
 } from "./ui/input";
@@ -57,23 +55,24 @@ export const StationConfig = ({
 }: {
   spName?: string;
   spStationId?: string;
-  spDirection?: string;
+  spDirection?: "inbound" | "outbound";
   spLines?: string[];
-  spVariant?: string;
+  spVariant?: "old" | "new";
   spSize?: number;
 }) => {
   const [query, setQuery] = useState<string>();
-  const [direction, setDirection] = useState(spDirection ?? "inbound");
+  const [direction, setDirection] = useState<"inbound" | "outbound">(
+    spDirection ?? "inbound",
+  );
   const [stationId, setStationId] = useState<string | undefined>(spStationId);
   const [selectedLines, setSelectedLines] = useState<string[] | null>(
     spLines ?? null
   );
-  const [variant, setVariant] = useState(spVariant ?? "new");
+  const [variant, setVariant] = useState<"old" | "new">(spVariant ?? "new");
   const [size, setSize] = useState(spSize ?? 3);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const pathname = usePathname();
-  const router = useRouter();
+  const navigate = useNavigate({ from: "/" });
 
   const [name, setName] = useState<string | undefined>(spName);
 
@@ -155,14 +154,16 @@ export const StationConfig = ({
       return;
     }
 
-    const params = new URLSearchParams();
-    params.set("stationId", resolvedStationId);
-    params.set("direction", direction);
-    params.set("lines", selectedOrAvailableLines.join(","));
-    params.set("name", name);
-    params.set("variant", variant);
-    params.set("size", size.toString());
-    router.push(pathname + "?" + params.toString());
+    void navigate({
+      search: {
+        stationId: resolvedStationId,
+        direction,
+        lines: selectedOrAvailableLines,
+        name,
+        variant,
+        size,
+      },
+    });
     setDialogOpen(false);
   };
 
@@ -229,7 +230,9 @@ export const StationConfig = ({
               </Combobox>
               <RadioGroup
                 name="direction"
-                onValueChange={setDirection}
+                onValueChange={(value) => {
+                  setDirection(value === "outbound" ? "outbound" : "inbound");
+                }}
                 value={direction}
                 required
               >
@@ -263,7 +266,9 @@ export const StationConfig = ({
               </CheckboxGroup>
               <RadioGroup
                 name="theme"
-                onValueChange={setVariant}
+                onValueChange={(value) => {
+                  setVariant(value === "old" ? "old" : "new");
+                }}
                 value={variant}
                 required
               >

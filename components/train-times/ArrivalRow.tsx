@@ -1,5 +1,3 @@
-"use client";
-
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { ArrivalCountdown } from "./ArrivalCountdown";

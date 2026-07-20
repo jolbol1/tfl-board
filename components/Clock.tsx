@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import React, { useState, useEffect } from "react";
 
@@ -15,9 +13,11 @@ export const Clock = ({
   variant = "old",
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { variant: "old" | "new" }) => {
-  const [time, setTime] = useState(getTime);
+  const [time, setTime] = useState<string | null>(null);
 
   useEffect(() => {
+    setTime(getTime());
+
     const interval = setInterval(() => {
       setTime(getTime());
     }, 1000);
@@ -37,7 +37,7 @@ export const Clock = ({
           "bg-yellow-400/5": variant === "old",
         })}
       >
-        {time}
+        {time ?? "--:--:--"}
       </time>
     </div>
   );

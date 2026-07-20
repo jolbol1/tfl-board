@@ -9,15 +9,14 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
-
 # production
 /build
+/.output/
+/.nitro/
 
-# generated local data
-/data/tube-stations.json
+# legacy Next.js build artifacts (safe to ignore during migration)
+/.next/
+next-env.d.ts
 
 # misc
 .DS_Store
@@ -31,9 +30,8 @@ yarn-error.log*
 # local env files
 .env*.local
 
-# vercel
+# deployment
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
